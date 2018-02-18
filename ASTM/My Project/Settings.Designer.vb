@@ -54,15 +54,24 @@ Namespace My
             End Get
         End Property
         
+        <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("LIS2-A2")>  _
+        Public ReadOnly Property LIS2_A2() As String
+            Get
+                Return CType(Me("LIS2_A2"),String)
+            End Get
+        End Property
+        
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
-        Public Property Setting() As String
+         Global.System.Configuration.DefaultSettingValueAttribute("E1394-97")>  _
+        Public Property E1394_97() As String
             Get
-                Return CType(Me("Setting"),String)
+                Return CType(Me("E1394_97"),String)
             End Get
             Set
-                Me("Setting") = value
+                Me("E1394_97") = value
             End Set
         End Property
     End Class
@@ -76,9 +85,9 @@ Namespace My
     Friend Module MySettingsProperty
         
         <Global.System.ComponentModel.Design.HelpKeywordAttribute("My.Settings")>  _
-        Friend ReadOnly Property Settings() As Global.UWAM.My.MySettings
+        Friend ReadOnly Property Settings() As Global.ASTM.My.MySettings
             Get
-                Return Global.UWAM.My.MySettings.Default
+                Return Global.ASTM.My.MySettings.Default
             End Get
         End Property
     End Module
