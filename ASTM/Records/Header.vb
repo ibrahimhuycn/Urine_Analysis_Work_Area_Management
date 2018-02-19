@@ -94,7 +94,7 @@ Namespace Records
         Elseif astmVersion = ASTM_Versions.E1394_97 then
             VersionNumber = My.Settings.E1394_97
         Else
-            Throw New NotImplementedException(String.Format("ASTM protocol version: {0} is not implemented yet.", astmVersion.ToString))
+            Throw New NotImplementedException(String.Format("ASTM protocol version: {0} is either not valid or implemented yet.", astmVersion.ToString))
         End If
 
         'Setting timestamp if required. Date and time of message format is fixed with “YYYYMMDDHHMMSS”

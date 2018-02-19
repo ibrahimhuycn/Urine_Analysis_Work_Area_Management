@@ -5,6 +5,5 @@
         Public Const RepeatDelimiterYen As Integer = 165    ' ASCII for Yen (¥) is 165
         Public Const ComponentDelimiter As Integer = 94     ' ASCII for Caret(^) is 94
         Public Const EscapeCharacter As Integer = 38        ' ASCII for Ampersand (&) is 38
-
     End Class
 End Class
