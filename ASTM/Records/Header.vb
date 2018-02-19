@@ -18,6 +18,9 @@ Namespace Records
         Const MaxCharSPerRecord As Integer = 240
         Const MaxRetriesSendingRecord As Integer = 06  'max number of retries after consecutive NAKs from recever.
 
+        'Variables used for Testing
+        Public Shared TestingTimestamp As String
+
         'Todo: Remove this Enum from he
       Enum TimeOuts
                     'Timeouts expresseed in milliseconds
@@ -33,42 +36,42 @@ Namespace Records
 
       End Enum
 
-    'Header Record Example: H|\^&|||||||||||E139→4-97|20100822100525<CR> 
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |  #  | ASTM Field # | ASTM Name                       | VB alias          |
-    ' +=====+==============+=================================+===================+
-    ' |   1 |        7.1.1 |             ASTM Record Type ID |              type |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |   2 |        7.1.2 |            Delimiter Definition |     Delimiter Def |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |   3 |        7.1.3 |              Message Control ID |        message_id |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |   4 |        7.1.4 |                 Access Password |          password |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |   5 |        7.1.5 |               Sender Name or ID |            sender |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |   6 |        7.1.6 |           Sender Street Address |           address |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |   7 |        7.1.7 |                  Reserved Field |          reserved |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |   8 |        7.1.8 |         Sender Telephone Number |             phone |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |   9 |        7.1.9 |       Characteristics of Sender |              caps |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |  10 |       7.1.10 |                     Receiver ID |          receiver |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |  11 |       7.1.11 |                        Comments |          comments |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |  12 |       7.1.12 |                   Processing ID |     processing_id |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |  13 |       7.1.13 |                  Version Number |           version |
-    ' +-----+--------------+---------------------------------+-------------------+
-    ' |  14 |       7.1.14 |            Date/Time of Message |         timestamp |
-    ' +-----+--------------+---------------------------------+-------------------+
+        'Header Record Example: H|\^&|||||||||||E139→4-97|20100822100525<CR> 
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |  #  | ASTM Field # | ASTM Name                       | VB alias          |
+        ' +=====+==============+=================================+===================+
+        ' |   1 |        7.1.1 |             ASTM Record Type ID |              type |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |   2 |        7.1.2 |            Delimiter Definition |     Delimiter Def |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |   3 |        7.1.3 |              Message Control ID |        message_id |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |   4 |        7.1.4 |                 Access Password |          password |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |   5 |        7.1.5 |               Sender Name or ID |            sender |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |   6 |        7.1.6 |           Sender Street Address |           address |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |   7 |        7.1.7 |                  Reserved Field |          reserved |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |   8 |        7.1.8 |         Sender Telephone Number |             phone |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |   9 |        7.1.9 |       Characteristics of Sender |              caps |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |  10 |       7.1.10 |                     Receiver ID |          receiver |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |  11 |       7.1.11 |                        Comments |          comments |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |  12 |       7.1.12 |                   Processing ID |     processing_id |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |  13 |       7.1.13 |                  Version Number |           version |
+        ' +-----+--------------+---------------------------------+-------------------+
+        ' |  14 |       7.1.14 |            Date/Time of Message |         timestamp |
+        ' +-----+--------------+---------------------------------+-------------------+
 
-      Function GenerateHeader(ByVal sender As String,
+        Function GenerateHeader(ByVal sender As String,
         ByVal Is_timestamp_Required As Boolean,
-        ByVal astmVersion As ASTM_Versions,
+        ByVal Optional astmVersion As ASTM_Versions = ASTM_Versions.LIS2_A2,
         ByVal Optional repeatDelimiter As Integer = RepeatDelimiter, 
         ByVal Optional message_id As String = Nothing, 
         ByVal Optional password As String = Nothing, 
@@ -85,23 +88,16 @@ Namespace Records
             Const type As String = "H"
             Dim DelimiterDef As String = ChrW(FieldDelimiter) & ChrW(repeatDelimiter) & ChrW(ComponentDelimiter) & ChrW(EscapeCharacter)
 
+            'Setting the Default Protocol as LIS2-A2. No Need to read from disk(Settings file.) That makes the code slower.
+            Dim VersionNumber As String = "LIS2-A2"
+            'If the Version is specified as E1394-97 then the following line gets executed.
+            If astmVersion = ASTM_Versions.E1394_97 then VersionNumber = My.Settings.E1394_97
 
-        'Determining ASTM version information to embed in the Header record.
-        Dim VersionNumber As String
-
-        If astmVersion = ASTM_Versions.LIS2_A2 Then
-            VersionNumber = My.Settings.LIS2_A2
-        Elseif astmVersion = ASTM_Versions.E1394_97 then
-            VersionNumber = My.Settings.E1394_97
-        Else
-            Throw New NotImplementedException(String.Format("ASTM protocol version: {0} is either not valid or implemented yet.", astmVersion.ToString))
-        End If
-
-        'Setting timestamp if required. Date and time of message format is fixed with “YYYYMMDDHHMMSS”
-        Dim timestamp As String = Nothing
-        If Is_timestamp_Required = True Then timestamp = DateTime.Now().ToString("yyyyMMddHHmmss")
-
-        Return String.Format("{0}{1}{2}{3}{2}{4}{2}{5}{2}{6}{2}{7}{2}{8}{2}{9}{2}{10}{2}{11}{2}{12}{2}{13}", type, DelimiterDef,FieldDelimiter, message_id, password, sender, address, reserved, phone, caps, receiver, comments, processing_id, VersionNumber,timestamp)
+            'Setting timestamp if required. Date and time of message format is fixed with “YYYYMMDDHHMMSS”
+            Dim timestamp As String = ""
+            If Is_timestamp_Required = True Then timestamp = DateTime.Now().ToString("yyyyMMddHHmmss")
+            TestingTimestamp = timestamp.ToString
+            Return String.Format("{0}{1}{2}{3}{2}{4}{2}{5}{2}{6}{2}{7}{2}{8}{2}{9}{2}{10}{2}{11}{2}{12}{2}{13}{2}{14}", type, DelimiterDef,ChrW(FieldDelimiter), message_id, password, sender, address, reserved, phone, caps, receiver, comments, processing_id, VersionNumber,timestamp)
       End Function
     
       Function InterpretHeader(HeaderRecord As String)
