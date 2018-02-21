@@ -3,7 +3,7 @@ Namespace Records
      'Common ASTM records structure
     Public Class Header
         'Record Template with chars < 240: 
-        '[STX] [F#] [Text] [ETX] [CHK1] [CHK2] [CR] [LF]
+        '[STX][F#] [Text] [CR][ETX][CHK1][CHK2][CR][LF]
 
 
         'Record Template with chars > 240:
@@ -68,7 +68,24 @@ Namespace Records
         ' +-----+--------------+---------------------------------+-------------------+
         ' |  14 |       7.1.14 |            Date/Time of Message |         timestamp |
         ' +-----+--------------+---------------------------------+-------------------+
-
+        ''' <summary>
+        ''' Parse ASTM Header record when required details are passed,
+        ''' Required details will be determined from the specific instruments documentation.
+        ''' </summary>
+        ''' <param name="sender">Sender Name or ID.</param>
+        ''' <param name="Is_timestamp_Required">Boolean determines whether timestamp should be included in the ASTM header record.</param>
+        ''' <param name="astmVersion">Default: LIS2-A2.Optional parameter. Version Number for ASTM Specification.</param>
+        ''' <param name="repeatDelimiter">Default: Backslash ASCII 92. Repeat Delimiter, included in delimiter definition. </param>
+        ''' <param name="message_id">This is a unique number or other ID that uniquely identifies the transmission for use in network systems.</param>
+        ''' <param name="password">This is a level security/access password as mutually agreed upon by the sender and receiver.</param>
+        ''' <param name="address">This text value shall contain the street address of the sender</param>
+        ''' <param name="reserved">This field is currently unused but reserved for future use.</param>
+        ''' <param name="phone">This field identifies a telephone number for voice communication with the sender</param>
+        ''' <param name="caps">This field contains any characteristics of the sender such as, parity, checksums, optional protocols, etc. necessary for establishing a communication link with the sender.</param>
+        ''' <param name="receiver">The name or other ID of the receiver. Its purpose is verification that the transmission is indeed for the receiver.</param>
+        ''' <param name="comments">This text field shall contain any comments or special instructions relating to the subsequent records to be transmitted.</param>
+        ''' <param name="processing_id">Processing IDs: P, T, D, Q. Production, Training, Debugging and Quality Control respectively </param>
+        ''' <returns>Header record with placeholders for control characters.</returns>
         Function GenerateHeader(ByVal sender As String,
         ByVal Is_timestamp_Required As Boolean,
         ByVal Optional astmVersion As ASTM_Versions = ASTM_Versions.LIS2_A2,
@@ -97,17 +114,24 @@ Namespace Records
             Dim timestamp As String = ""
             If Is_timestamp_Required = True Then timestamp = DateTime.Now().ToString("yyyyMMddHHmmss")
             TestingTimestamp = timestamp.ToString
-            Return String.Format("{0}{1}{2}{3}{2}{4}{2}{5}{2}{6}{2}{7}{2}{8}{2}{9}{2}{10}{2}{11}{2}{12}{2}{13}{2}{14}", type, DelimiterDef,ChrW(FieldDelimiter), message_id, password, sender, address, reserved, phone, caps, receiver, comments, processing_id, VersionNumber,timestamp)
-      End Function
-    
-      Function InterpretHeader(HeaderRecord As String)
-            'STEP 1: Read the first character and ensure that the Passed record is a HeaderRecord. Starts with "H"
+
+            Return String.Format("[STX][F#]{0}{1}{2}{3}{2}{4}{2}{5}{2}{6}{2}{7}{2}{8}{2}{9}{2}{10}{2}{11}{2}{12}{2}{13}{2}{14}[ETX][CHK1][CHK2][CR][LF]", type, DelimiterDef, ChrW(FieldDelimiter), message_id, password, sender, address, reserved, phone, caps, receiver, comments, processing_id, VersionNumber, timestamp)
+        End Function
+        ''' <summary>
+        ''' Interprets validated ASTM header record.
+        ''' Records are validated by checking for valid checksum. 
+        ''' </summary>
+        ''' <param name="HeaderRecord">ASTM Header Record to be interpreted.</param>
+        ''' <returns>I have no idea what this should return yet. Maybe an ACK equivalent for a successfully decoded message.</returns>
+        Function InterpretHeader(HeaderRecord As String)
+            'Record should have been validated by checking the checksum characters.
+            'STEP 1: Verify that the record is a Header record. Check the ASTM Record Type ID which should be equal to "H".
 
             'STEP 2: Read the delimiter definition
-                    '1. Field Delimiter     (|)
-                    '2. Repeat Delimiter    (\) or (¥)
-                    '3. Component Delimiter (^)
-                    '4. Escape Character    (&)
+            '1. Field Delimiter     (|)
+            '2. Repeat Delimiter    (\) or (¥)
+            '3. Component Delimiter (^)
+            '4. Escape Character    (&)
 
             'STEP 3: Store the delimiters in My.Settings for interpreting the message correctly.
             'STEP 4: Split up the rest of the message with Field Delimiter and identify instrument with which the communication is being initialised with.
