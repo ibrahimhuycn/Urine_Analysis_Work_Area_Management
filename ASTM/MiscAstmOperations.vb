@@ -1,4 +1,6 @@
 ﻿Imports System.Text
+Imports ASTM.astmConstants
+
 Public Class MiscAstmOperations
 
     Dim ExpectNextBlock As Boolean = False
@@ -18,9 +20,9 @@ Public Class MiscAstmOperations
         For idx As Integer = 0 To frame.Length - 1
             byteVal = Convert.ToInt32(frame(idx))
             Select Case byteVal
-                Case astmConstants.STX
+                Case STX
                     sumOfChars = 0
-                Case astmConstants.ETX, astmConstants.ETB
+                Case ETX, ETB
                     sumOfChars += byteVal
                     complete = True
                 Case Else
@@ -45,25 +47,25 @@ Public Class MiscAstmOperations
     Public Function ReplaceControlCharacters(astmFrame As string) As String
         Dim ReplcedAstmFrame As StringBuilder = New StringBuilder(astmFrame)
 
-        ReplcedAstmFrame.Replace("[STX]", ChrW(astmConstants.STX))
-        ReplcedAstmFrame.Replace("[ETX]", ChrW(astmConstants.ETX))
-        ReplcedAstmFrame.Replace("[EOT]", ChrW(astmConstants.EOT))
-        ReplcedAstmFrame.Replace("[ENQ]", ChrW(astmConstants.ENQ))
-        ReplcedAstmFrame.Replace("[ACK]", ChrW(astmConstants.ACK))
-        ReplcedAstmFrame.Replace("[LF]", ChrW(astmConstants.LF))
-        ReplcedAstmFrame.Replace("[CR]", ChrW(astmConstants.CR))
-        ReplcedAstmFrame.Replace("[NAK]", ChrW(astmConstants.NAK))
-        ReplcedAstmFrame.Replace("[ETB]", ChrW(astmConstants.ETB))
+        ReplcedAstmFrame.Replace("[STX]", ChrW(STX))
+        ReplcedAstmFrame.Replace("[ETX]", ChrW(ETX))
+        ReplcedAstmFrame.Replace("[EOT]", ChrW(EOT))
+        ReplcedAstmFrame.Replace("[ENQ]", ChrW(ENQ))
+        ReplcedAstmFrame.Replace("[ACK]", ChrW(ACK))
+        ReplcedAstmFrame.Replace("[LF]", ChrW(LF))
+        ReplcedAstmFrame.Replace("[CR]", ChrW(CR))
+        ReplcedAstmFrame.Replace("[NAK]", ChrW(NAK))
+        ReplcedAstmFrame.Replace("[ETB]", ChrW(ETB))
 
         Return ReplcedAstmFrame.ToString
     End Function
     ''' <summary>
     ''' Checks whether astm frame is complete, checks whether to expect another block of the frame.
-    ''' This is achieved by checking the start of the frame for [STX] and the end of the frame for either [CR] or [ETB]
+    ''' This is achieved by checking the start of the frame for [STX] and the end of the frame for either [CR][ETX] or [ETB]
     ''' </summary>
-    ''' <param name="frame">frame of ASTM data to evaluate with actual ASTM control characters. Not the placeholders.</param>
+    ''' <param name="ValidatedFrame">frame of ASTM data to evaluate with actual ASTM control characters. Not the placeholders.</param>
     ''' <returns>Returns True for complete frames and False otherwise</returns>
-    Function IsAstmFrameComplete(frame As String) As Boolean
+    Function IsAstmFrameComplete(ValidatedFrame As String) As Boolean
 
         Dim byteVal As Integer
         Dim IsComplete As Boolean = False
@@ -71,18 +73,18 @@ Public Class MiscAstmOperations
         Dim GotETX As Boolean = False
 
         'Look for ASCII [STX] at the beginning of the frame.
-        If Left(frame, 1) = ChrW(2) Then
+        If Left(ValidatedFrame, 1) = ChrW(2) Then
+            'Starting at the end of the frame to look for pattern [CR][ETX] Or [ETB]
+            For idx As Integer = ValidatedFrame.Length -1 To 0 Step -1
 
-            For idx As Integer = frame.Length -1 To 0 Step -1
-
-                byteVal = Convert.ToInt32(frame(idx))
+                byteVal = Convert.ToInt32(ValidatedFrame(idx))
                ' MsgBox (byteVal)
                 Select Case byteVal
-                    Case astmConstants.CR   'the [CR][LF] should not be considered as a [CR] for end of frame.
+                    Case CR   'the [CR][LF] should not be considered as a [CR] for end of frame.
                         If GotETX = True then IsComplete = True
-                    Case astmConstants.ETX
+                    Case ETX
                         GotETX = True
-                    Case astmConstants.ETB
+                    Case ETB
                         IsComplete = True
                         ExpectNextBlock = True
                 End Select
@@ -94,5 +96,21 @@ Public Class MiscAstmOperations
             'A frame which does not start with ASCII [STX] is invalid.
             Return False
         End If
+    End Function
+
+    ''' <summary>
+    ''' Returns True/False after checking the validity of the ASTM frame by validating the checksum.
+    ''' IMPORTANT: Method assumes that frame ends with [CR][LF]
+    ''' </summary>
+    ''' <param name="frame">frame of ASTM data to evaluate with actual ASTM control characters. Not the placeholders.</param>
+    ''' <returns>Returns True for valid checksums and False otherwise</returns>
+    Function IsAstmFrameValid(frame As String) As Boolean
+        'Calculate ASTM checksum for the provided ASTM frame.
+        'Compare checksum in the frame with the calculated checksum.
+        'ASTM frame ending pattern: [CHK1][CHK2][CR][LF]
+        'MsgBox(Strings.Mid(frame, frame.Length - 3, 2))
+        Dim IsValid As Boolean = False
+        If GetCheckSumValue(frame) = Mid(frame, frame.Length - 3, 2) Then IsValid = True
+        Return IsValid
     End Function
 End Class

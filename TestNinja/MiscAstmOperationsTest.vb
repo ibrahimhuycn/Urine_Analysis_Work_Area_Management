@@ -1,4 +1,5 @@
-﻿<TestClass()> Public Class MiscAstmOperationsTest
+﻿Imports ASTM.astmConstants
+<TestClass()> Public Class MiscAstmOperationsTest
 
     <TestMethod()> Public Sub ReplaceControlCharacters_CheckAllCharactersInUse_CovertedAsciiControlCharacters()
         'ARRANGE
@@ -22,7 +23,8 @@
 
     <TestMethod()> Public Sub IsAstmFrameComplete_PassCompleteAstmFrameWithEtb_ReturnTrueAsComplete()
         'ARRANGE
-        Const TestAstmFrame As String = "2[Text]A6"
+        '[stx]2[text][etb]A6[CR][LF]
+        Dim TestAstmFrame As String = String.Format("{0}2[Text]{1}A6{2}{3}", ChrW(STX), ChrW(ETB), ChrW(CR), ChrW(LF))
         Dim ValidateASTM As New ASTM.MiscAstmOperations
         'ACT
         Dim ActualValue As Boolean = ValidateASTM.IsAstmFrameComplete(TestAstmFrame)
@@ -32,9 +34,7 @@
     End Sub
     <TestMethod()> Public Sub IsAstmFrameComplete_PassCompleteAstmFrameWithCrEtx_ReturnTrueAsComplete()
         'ARRANGE
-        Const TestAstmFrame As String = "2[Text]
-A6
-"
+        Dim TestAstmFrame As String = String.Format("2[Text]{0}{1}A6{2}{3}", ChrW(CR), ChrW(ETX), chrw(CR), ChrW(LF))
         Dim IsFrameComplete As New ASTM.MiscAstmOperations
         'ACT
         Dim ActualValue As Boolean = IsFrameComplete.IsAstmFrameComplete(TestAstmFrame)
@@ -52,13 +52,24 @@
     End Sub
     <TestMethod()> Public Sub IsAstmFrameComplete_PassIncompleteAstmFrameNoEtx_ReturnFalseAsIncomplete()
         'ARRANGE
-        Const TestAstmFrame As String = "1H|¥^&|||U-WAM^00-08_Build008^11001^^^^AU501736||||||||LIS2-A2|20170307144247
-CF
-"
+        Dim TestAstmFrame As String = String.Format("1H|¥^&|||U-WAM^00-08_Build008^11001^^^^AU501736||||||||LIS2-A2|20170307144247{0}{1}", ChrW(CR), ChrW(LF))
         Dim IsFrameComplete As New ASTM.MiscAstmOperations
         'ACT
         Dim ActualValue As Boolean = IsFrameComplete.IsAstmFrameComplete(TestAstmFrame)
         'ASSERT
         Assert.IsFalse(ActualValue)
+    End Sub
+    <TestMethod()> Public Sub IsAstmFrameValid_ValidChecksum_True()
+        'ARRANGE
+        Dim TestAstmFrame0 As String = String.Format("{0}1H|¥^&|||U-WAM^00-08_Build008^11001^^^^AU501736||||||||LIS2-A2|20170307144247{1}{2}B8{3}{4}", ChrW(STX), ChrW(CR), ChrW(ETX), ChrW(CR), ChrW(LF))
+        Dim TestAstmFrame1 As String = String.Format("{0}1foo|1{1}{2}32{3}{4}", ChrW(STX), ChrW(CR), ChrW(ETX), ChrW(CR), ChrW(LF))
+        Dim IsFrameComplete As New ASTM.MiscAstmOperations
+        'ACT
+        Dim IsValid0 As Boolean = IsFrameComplete.IsAstmFrameValid(TestAstmFrame0)
+        Dim IsValid1 As Boolean = IsFrameComplete.IsAstmFrameValid(TestAstmFrame1)
+        'MsgBox(IsValid.ToString)
+        'ASSERT
+        Assert.IsTrue(IsValid0)
+        Assert.IsTrue(IsValid1)
     End Sub
 End Class
