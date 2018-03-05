@@ -63,15 +63,60 @@ Namespace My
             End Get
         End Property
         
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+        <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.DefaultSettingValueAttribute("E1394-97")>  _
-        Public Property E1394_97() As String
+        Public ReadOnly Property E1394_97() As String
             Get
                 Return CType(Me("E1394_97"),String)
             End Get
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("|")>  _
+        Public Property FieldDelimiter() As String
+            Get
+                Return CType(Me("FieldDelimiter"),String)
+            End Get
             Set
-                Me("E1394_97") = value
+                Me("FieldDelimiter") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("\")>  _
+        Public Property RepeatDelimiter() As String
+            Get
+                Return CType(Me("RepeatDelimiter"),String)
+            End Get
+            Set
+                Me("RepeatDelimiter") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("^")>  _
+        Public Property ComponentDelimiter() As String
+            Get
+                Return CType(Me("ComponentDelimiter"),String)
+            End Get
+            Set
+                Me("ComponentDelimiter") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("&")>  _
+        Public Property EscapeDelimiter() As String
+            Get
+                Return CType(Me("EscapeDelimiter"),String)
+            End Get
+            Set
+                Me("EscapeDelimiter") = value
             End Set
         End Property
     End Class

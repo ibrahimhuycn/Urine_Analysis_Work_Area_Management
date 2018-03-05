@@ -1,10 +1,11 @@
 ﻿Imports ASTM.Delimiters.AstmDelimiters
-Namespace Records
-     'Common ASTM records structure
-    Public Class Header
-        'Record Template with chars < 240: 
-        '[STX][F#] [Text] [CR][ETX][CHK1][CHK2][CR][LF]
 
+Namespace Records
+
+    'Common ASTM records structure
+    Public Class Header
+        'Record Template with chars < 240:
+        '[STX][F#] [Text] [CR][ETX][CHK1][CHK2][CR][LF]
 
         'Record Template with chars > 240:
         '[STX] [F#] [Text] [ETB] [CHK1] [CHK2] [CR] [LF]
@@ -12,31 +13,33 @@ Namespace Records
         '……
         '[STX] [F#] [Text] [ETX] [CHK1] [CHK2] [CR] [LF]
 
+        'Variables used for Testing
+        Public Shared TestingTimestamp As String
 
         'Max characters in ASTM record cannot exceed 240 including the overhead of
         'control characters.
         Const MaxCharSPerRecord As Integer = 240
-        Const MaxRetriesSendingRecord As Integer = 06  'max number of retries after consecutive NAKs from recever.
 
-        'Variables used for Testing
-        Public Shared TestingTimestamp As String
+        Const MaxRetriesSendingRecord As Integer = 6  'max number of retries after consecutive NAKs from recever.
+
+        Enum ASTM_Versions
+            LIS2_A2
+            E1394_97
+        End Enum
 
         'Todo: Remove this Enum from he
-      Enum TimeOuts
-                    'Timeouts expresseed in milliseconds
-                    'Establishment phase
-                  ReplyWindowAfterENQ = 15000        'reply with ACK, NAK or EOT
-                  MinimumENQWaitAfterNAK = 10000     'Have to wait for min 10 sec before another ENQ
-                  ENQWaitAfterENQClash = 20000       'Server have to wait min 20 before sending ENQ after an ENQ Clash
+        Enum TimeOuts
 
-      End Enum
-      Enum ASTM_Versions
-                LIS2_A2
-                E1394_97
+            'Timeouts expresseed in milliseconds
+            'Establishment phase
+            ReplyWindowAfterENQ = 15000        'reply with ACK, NAK or EOT
 
-      End Enum
+            MinimumENQWaitAfterNAK = 10000     'Have to wait for min 10 sec before another ENQ
+            ENQWaitAfterENQClash = 20000       'Server have to wait min 20 before sending ENQ after an ENQ Clash
 
-        'Header Record Example: H|\^&|||||||||||E139→4-97|20100822100525<CR> 
+        End Enum
+
+        'Header Record Example: H|\^&|||||||||||E139→4-97|20100822100525<CR>
         ' +-----+--------------+---------------------------------+-------------------+
         ' |  #  | ASTM Field # | ASTM Name                       | VB alias          |
         ' +=====+==============+=================================+===================+
@@ -89,16 +92,16 @@ Namespace Records
         Function GenerateHeader(ByVal sender As String,
         ByVal Is_timestamp_Required As Boolean,
         ByVal Optional astmVersion As ASTM_Versions = ASTM_Versions.LIS2_A2,
-        ByVal Optional repeatDelimiter As Integer = RepeatDelimiter, 
-        ByVal Optional message_id As String = Nothing, 
-        ByVal Optional password As String = Nothing, 
+        ByVal Optional repeatDelimiter As Integer = RepeatDelimiter,
+        ByVal Optional message_id As String = Nothing,
+        ByVal Optional password As String = Nothing,
         ByVal Optional address As String = Nothing,
         ByVal Optional reserved As String = Nothing,
-        ByVal Optional phone As String = Nothing, 
-        ByVal Optional caps As String = Nothing, 
-        ByVal Optional receiver As String = Nothing ,
+        ByVal Optional phone As String = Nothing,
+        ByVal Optional caps As String = Nothing,
+        ByVal Optional receiver As String = Nothing,
         ByVal Optional comments As String = Nothing,
-        ByVal Optional processing_id As String = Nothing)                
+        ByVal Optional processing_id As String = Nothing)
 
             'Usage Status in Order Record Header.
             'Generate Delimiter Definition.
@@ -108,7 +111,7 @@ Namespace Records
             'Setting the Default Protocol as LIS2-A2. No Need to read from disk(Settings file.) That makes the code slower.
             Dim VersionNumber As String = "LIS2-A2"
             'If the Version is specified as E1394-97 then the following line gets executed.
-            If astmVersion = ASTM_Versions.E1394_97 then VersionNumber = My.Settings.E1394_97
+            If astmVersion = ASTM_Versions.E1394_97 Then VersionNumber = My.Settings.E1394_97
 
             'Setting timestamp if required. Date and time of message format is fixed with “YYYYMMDDHHMMSS”
             Dim timestamp As String = ""
@@ -117,34 +120,32 @@ Namespace Records
 
             Return String.Format("[STX][F#]{0}{1}{2}{3}{2}{4}{2}{5}{2}{6}{2}{7}{2}{8}{2}{9}{2}{10}{2}{11}{2}{12}{2}{13}{2}{14}[ETX][CHK1][CHK2][CR][LF]", type, DelimiterDef, ChrW(FieldDelimiter), message_id, password, sender, address, reserved, phone, caps, receiver, comments, processing_id, VersionNumber, timestamp)
         End Function
+
         ''' <summary>
         ''' Interprets validated ASTM header record.
-        ''' Records are validated by checking for valid checksum. 
+        ''' Records are validated by checking for valid checksum.
         ''' </summary>
         ''' <param name="HeaderRecord">ASTM Header Record to be interpreted.</param>
         ''' <returns>I have no idea what this should return yet. Maybe an ACK equivalent for a successfully decoded message.</returns>
         Function InterpretHeader(HeaderRecord As String)
+            '[STX]1H|\^&|||U-WAM^00-08_Build008^11001^^^^AU501736||||||||LIS2-A2|20170307144247[CR][ETX][CHK1][CHK2][CR][LF]
             'Record should have been validated by checking the checksum characters.
-            'STEP 1: Verify that the record is a Header record. Check the ASTM Record Type ID which should be equal to "H".
 
-            'STEP 2: Read the delimiter definition
+            'STEP 1: Read the delimiter definition
+            'Default Delimiters
             '1. Field Delimiter     (|)
-            '2. Repeat Delimiter    (\) or (¥)
+            '2. Repeat Delimiter    (\) <---Default or (¥)
             '3. Component Delimiter (^)
             '4. Escape Character    (&)
 
-            'STEP 3: Store the delimiters in My.Settings for interpreting the message correctly.
-            'STEP 4: Split up the rest of the message with Field Delimiter and identify instrument with which the communication is being initialised with.
-            'STEP 5: Take necessary actions and notify successful read.
+            'STEP 2: Store the delimiters variables.
+            'STEP 2.1: Identify message source, load up the config for communication with source or something similar
+            'STEP 3: Split up the rest of the message with Field Delimiter and identify instrument with which the communication is being initialised with.
+            'STEP 4: Take necessary actions and notify successful read.
 
             Return 0
         End Function
 
-
-
-
     End Class
 
 End Namespace
-
-   

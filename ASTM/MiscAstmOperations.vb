@@ -38,27 +38,7 @@ Public Class MiscAstmOperations
 
         Return If(checksum.Length = 1, "0" & checksum, checksum)
     End Function
-    ''' <summary>
-    ''' Replaces display ASTM control characters (i.e., STX, ETX etc) with their ASCII values 
-    ''' for calculation of checksum.
-    ''' </summary>
-    ''' <param name="astmFrame">frame of ASTM data to evaluate</param>
-    ''' <returns>ASTM frame with actual ASCII control characters</returns>
-    Public Function ReplaceControlCharacters(astmFrame As string) As String
-        Dim ReplcedAstmFrame As StringBuilder = New StringBuilder(astmFrame)
 
-        ReplcedAstmFrame.Replace("[STX]", ChrW(STX))
-        ReplcedAstmFrame.Replace("[ETX]", ChrW(ETX))
-        ReplcedAstmFrame.Replace("[EOT]", ChrW(EOT))
-        ReplcedAstmFrame.Replace("[ENQ]", ChrW(ENQ))
-        ReplcedAstmFrame.Replace("[ACK]", ChrW(ACK))
-        ReplcedAstmFrame.Replace("[LF]", ChrW(LF))
-        ReplcedAstmFrame.Replace("[CR]", ChrW(CR))
-        ReplcedAstmFrame.Replace("[NAK]", ChrW(NAK))
-        ReplcedAstmFrame.Replace("[ETB]", ChrW(ETB))
-
-        Return ReplcedAstmFrame.ToString
-    End Function
     ''' <summary>
     ''' Checks whether astm frame is complete, checks whether to expect another block of the frame.
     ''' This is achieved by checking the start of the frame for [STX] and the end of the frame for either [CR][ETX] or [ETB]
@@ -75,13 +55,13 @@ Public Class MiscAstmOperations
         'Look for ASCII [STX] at the beginning of the frame.
         If Left(ValidatedFrame, 1) = ChrW(2) Then
             'Starting at the end of the frame to look for pattern [CR][ETX] Or [ETB]
-            For idx As Integer = ValidatedFrame.Length -1 To 0 Step -1
+            For idx As Integer = ValidatedFrame.Length - 1 To 0 Step -1
 
                 byteVal = Convert.ToInt32(ValidatedFrame(idx))
-               ' MsgBox (byteVal)
+                ' MsgBox (byteVal)
                 Select Case byteVal
                     Case CR   'the [CR][LF] should not be considered as a [CR] for end of frame.
-                        If GotETX = True then IsComplete = True
+                        If GotETX = True Then IsComplete = True
                     Case ETX
                         GotETX = True
                     Case ETB
@@ -92,7 +72,7 @@ Public Class MiscAstmOperations
 
             Next
             Return IsComplete
-            Else
+        Else
             'A frame which does not start with ASCII [STX] is invalid.
             Return False
         End If
@@ -113,4 +93,27 @@ Public Class MiscAstmOperations
         If GetCheckSumValue(frame) = Mid(frame, frame.Length - 3, 2) Then IsValid = True
         Return IsValid
     End Function
+
+    ''' <summary>
+    ''' Replaces display ASTM control characters (i.e., STX, ETX etc) with their ASCII values
+    ''' for calculation of checksum.
+    ''' </summary>
+    ''' <param name="astmFrame">frame of ASTM data to evaluate</param>
+    ''' <returns>ASTM frame with actual ASCII control characters</returns>
+    Public Function ReplaceControlCharacters(astmFrame As String) As String
+        Dim ReplcedAstmFrame As StringBuilder = New StringBuilder(astmFrame)
+
+        ReplcedAstmFrame.Replace("[STX]", ChrW(STX))
+        ReplcedAstmFrame.Replace("[ETX]", ChrW(ETX))
+        ReplcedAstmFrame.Replace("[EOT]", ChrW(EOT))
+        ReplcedAstmFrame.Replace("[ENQ]", ChrW(ENQ))
+        ReplcedAstmFrame.Replace("[ACK]", ChrW(ACK))
+        ReplcedAstmFrame.Replace("[LF]", ChrW(LF))
+        ReplcedAstmFrame.Replace("[CR]", ChrW(CR))
+        ReplcedAstmFrame.Replace("[NAK]", ChrW(NAK))
+        ReplcedAstmFrame.Replace("[ETB]", ChrW(ETB))
+
+        Return ReplcedAstmFrame.ToString
+    End Function
+
 End Class
