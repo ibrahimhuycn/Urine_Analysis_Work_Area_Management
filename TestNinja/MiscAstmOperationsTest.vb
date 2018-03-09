@@ -96,7 +96,7 @@
         Dim ExpectedValue3 As Integer = 4
         Dim ExpectedValue4 As Integer = 3
         Dim ExpectedValue5 As Integer = 5
-        Dim ExpectedValue6 As Integer = 6
+        Dim ExpectedValue6 As Integer = 7
         Dim GetFrameType As New ASTM.MiscAstmOperations
         'ACT
         Dim ActualValue As Integer = GetFrameType.DetermineFrameType(TestAstmFrame0)

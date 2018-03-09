@@ -141,7 +141,7 @@ Namespace Records
 
             'STEP 2: Store the delimiters variables.
             'STEP 2.1: Identify message source, load up the config for communication with source or something similar
-            'STEP 3: Split up the rest of the message with Field Delimiter and identify instrument with which the communication is being initialised with.
+            'STEP 3: Split up the rest of the message with Field Delimiter and identify instrument with which the communication is being initialized with.
             'STEP 4: Take necessary actions and notify successful read.
 
             Return 0

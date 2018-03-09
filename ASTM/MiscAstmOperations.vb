@@ -4,6 +4,8 @@ Imports ASTM.Delimiters.AstmDelimiters
 
 Public Class MiscAstmOperations
 
+    Dim ExpectNextBlock As Boolean = False
+
     Enum FrameType
         H 'Header       0
         P 'Patient      1
@@ -11,17 +13,47 @@ Public Class MiscAstmOperations
         Q 'Query        3
         R 'Result       4
         C 'Comment      5
-        L 'Terminator   6
+        S 'Scientific   6
+        L 'Terminator   7
+        M 'Manufacturer 8
     End Enum
 
-    Dim ExpectNextBlock As Boolean = False
     ''' <summary>
-    ''' Reads checksum of an ASTM frame, calculates characters after STX,
+    ''' Determines the type of frame by reading the
+    ''' </summary>
+    ''' <param name="astmFrame">frame of ASTM data to evaluate</param>
+    ''' <returns>Returns frame type as Enum FrameType.</returns>
+    Public Function DetermineFrameType(astmFrame As String) As FrameType
+        Dim SplitFrame() As String = astmFrame.Split(ChrW(FieldDelimiter))
+        Dim FrameLetter As String = Right(SplitFrame(0), 1)
+        Dim ReturnValue As FrameType = 404
+
+        Select Case FrameLetter
+            Case "H"
+                ReturnValue = FrameType.H
+            Case "P"
+                ReturnValue = FrameType.P
+            Case "O"
+                ReturnValue = FrameType.O
+            Case "Q"
+                ReturnValue = FrameType.Q
+            Case "R"
+                ReturnValue = FrameType.R
+            Case "C"
+                ReturnValue = FrameType.C
+            Case "L"
+                ReturnValue = FrameType.L
+        End Select
+
+        Return ReturnValue
+    End Function
+
+    ''' <summary>
+    ''' Calculates checksum of an ASTM frame, calculates characters after STX,
     ''' up to and including the ETX or ETB. Method assumes the frame contains an ETX or ETB.
     ''' </summary>
     ''' <param name="frame">frame of ASTM data to evaluate</param>
     ''' <returns>string containing checksum</returns>
-
     Public Function GetCheckSumValue(ByVal frame As String) As String
         frame = ReplaceControlCharacters(frame)
         Dim checksum As String = "00"
@@ -125,31 +157,6 @@ Public Class MiscAstmOperations
         ReplcedAstmFrame.Replace("[ETB]", ChrW(ETB))
 
         Return ReplcedAstmFrame.ToString
-    End Function
-
-    Public Function DetermineFrameType(astmFrame As String) As FrameType
-        Dim SplitFrame() As String = astmFrame.Split(ChrW(FieldDelimiter))
-        Dim FrameLetter As String = Right(SplitFrame(0), 1)
-        Dim ReturnValue As FrameType = 404
-
-        Select Case FrameLetter
-            Case "H"
-                ReturnValue = FrameType.H
-            Case "P"
-                ReturnValue = FrameType.P
-            Case "O"
-                ReturnValue = FrameType.O
-            Case "Q"
-                ReturnValue = FrameType.Q
-            Case "R"
-                ReturnValue = FrameType.R
-            Case "C"
-                ReturnValue = FrameType.C
-            Case "L"
-                ReturnValue = FrameType.L
-        End Select
-
-        Return ReturnValue
     End Function
 
 End Class
