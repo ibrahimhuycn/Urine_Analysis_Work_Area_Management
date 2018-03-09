@@ -8,17 +8,8 @@
     <Setting Name="E1394_97" Type="System.String" Scope="Application">
       <Value Profile="(Default)">E1394-97</Value>
     </Setting>
-    <Setting Name="FieldDelimiter" Type="System.String" Scope="User">
-      <Value Profile="(Default)">|</Value>
-    </Setting>
-    <Setting Name="RepeatDelimiter" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\</Value>
-    </Setting>
-    <Setting Name="ComponentDelimiter" Type="System.String" Scope="User">
-      <Value Profile="(Default)">^</Value>
-    </Setting>
-    <Setting Name="EscapeDelimiter" Type="System.String" Scope="User">
-      <Value Profile="(Default)">&amp;</Value>
+    <Setting Name="IsRepeatDelimiterDefault" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

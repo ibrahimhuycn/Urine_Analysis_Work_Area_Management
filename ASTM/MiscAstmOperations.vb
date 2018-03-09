@@ -1,7 +1,18 @@
 ﻿Imports System.Text
 Imports ASTM.astmConstants
+Imports ASTM.Delimiters.AstmDelimiters
 
 Public Class MiscAstmOperations
+
+    Enum FrameType
+        H 'Header       0
+        P 'Patient      1
+        O 'Order        2
+        Q 'Query        3
+        R 'Result       4
+        C 'Comment      5
+        L 'Terminator   6
+    End Enum
 
     Dim ExpectNextBlock As Boolean = False
     ''' <summary>
@@ -114,6 +125,31 @@ Public Class MiscAstmOperations
         ReplcedAstmFrame.Replace("[ETB]", ChrW(ETB))
 
         Return ReplcedAstmFrame.ToString
+    End Function
+
+    Public Function DetermineFrameType(astmFrame As String) As FrameType
+        Dim SplitFrame() As String = astmFrame.Split(ChrW(FieldDelimiter))
+        Dim FrameLetter As String = Right(SplitFrame(0), 1)
+        Dim ReturnValue As FrameType = 404
+
+        Select Case FrameLetter
+            Case "H"
+                ReturnValue = FrameType.H
+            Case "P"
+                ReturnValue = FrameType.P
+            Case "O"
+                ReturnValue = FrameType.O
+            Case "Q"
+                ReturnValue = FrameType.Q
+            Case "R"
+                ReturnValue = FrameType.R
+            Case "C"
+                ReturnValue = FrameType.C
+            Case "L"
+                ReturnValue = FrameType.L
+        End Select
+
+        Return ReturnValue
     End Function
 
 End Class

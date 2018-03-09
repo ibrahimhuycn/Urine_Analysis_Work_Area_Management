@@ -1,8 +1,8 @@
 ﻿Imports ASTM.Delimiters.AstmDelimiters
 
 Namespace Records
-
     'Common ASTM records structure
+
     Public Class Header
         'Record Template with chars < 240:
         '[STX][F#] [Text] [CR][ETX][CHK1][CHK2][CR][LF]
@@ -132,6 +132,7 @@ Namespace Records
             'Record should have been validated by checking the checksum characters.
 
             'STEP 1: Read the delimiter definition
+
             'Default Delimiters
             '1. Field Delimiter     (|)
             '2. Repeat Delimiter    (\) <---Default or (¥)
