@@ -28,7 +28,7 @@
         Dim TestAstmFrame As String = String.Format("{0}2[Text]{1}A6{2}{3}", ChrW(STX), ChrW(ETB), ChrW(CR), ChrW(LF))
         Dim ValidateASTM As New ASTM.MiscAstmOperations
         'ACT
-        Dim ActualValue As Boolean = ValidateASTM.IsAstmFrameComplete(TestAstmFrame)
+        Dim ActualValue As Boolean = ValidateASTM.IsAstmRecordComplete(TestAstmFrame)
         'MsgBox(ActualValue)
         'ASSERT
         Assert.IsTrue(ActualValue)
@@ -39,7 +39,7 @@
         Dim TestAstmFrame As String = String.Format("2[Text]{0}{1}A6{2}{3}", ChrW(CR), ChrW(ETX), ChrW(CR), ChrW(LF))
         Dim IsFrameComplete As New ASTM.MiscAstmOperations
         'ACT
-        Dim ActualValue As Boolean = IsFrameComplete.IsAstmFrameComplete(TestAstmFrame)
+        Dim ActualValue As Boolean = IsFrameComplete.IsAstmRecordComplete(TestAstmFrame)
         'ASSERT
         Assert.IsTrue(ActualValue)
     End Sub
@@ -49,7 +49,7 @@
         Const TestAstmFrame As String = "2[Text]A6"
         Dim IsFrameComplete As New ASTM.MiscAstmOperations
         'ACT
-        Dim ActualValue As Boolean = IsFrameComplete.IsAstmFrameComplete(TestAstmFrame)
+        Dim ActualValue As Boolean = IsFrameComplete.IsAstmRecordComplete(TestAstmFrame)
         'ASSERT
         Assert.IsFalse(ActualValue)
     End Sub
@@ -59,7 +59,7 @@
         Dim TestAstmFrame As String = String.Format("1H|¥^&|||U-WAM^00-08_Build008^11001^^^^AU501736||||||||LIS2-A2|20170307144247{0}{1}", ChrW(CR), ChrW(LF))
         Dim IsFrameComplete As New ASTM.MiscAstmOperations
         'ACT
-        Dim ActualValue As Boolean = IsFrameComplete.IsAstmFrameComplete(TestAstmFrame)
+        Dim ActualValue As Boolean = IsFrameComplete.IsAstmRecordComplete(TestAstmFrame)
         'ASSERT
         Assert.IsFalse(ActualValue)
     End Sub

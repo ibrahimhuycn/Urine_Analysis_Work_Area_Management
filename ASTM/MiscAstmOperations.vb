@@ -23,7 +23,7 @@ Public Class MiscAstmOperations
     ''' </summary>
     ''' <param name="astmFrame">frame of ASTM data to evaluate</param>
     ''' <returns>Returns frame type as Enum FrameType.</returns>
-    Public Function DetermineFrameType(astmFrame As String) As FrameType
+    Public Shared Function DetermineFrameType(astmFrame As String) As FrameType
         Dim SplitFrame() As String = astmFrame.Split(ChrW(FieldDelimiter))
         Dim FrameLetter As String = Right(SplitFrame(0), 1)
         Dim ReturnValue As FrameType = 404
@@ -83,12 +83,12 @@ Public Class MiscAstmOperations
     End Function
 
     ''' <summary>
-    ''' Checks whether astm frame is complete, checks whether to expect another block of the frame.
+    ''' Checks whether astm record is complete, checks whether to expect another block of the record.
     ''' This is achieved by checking the start of the frame for [STX] and the end of the frame for either [CR][ETX] or [ETB]
     ''' </summary>
     ''' <param name="ValidatedFrame">frame of ASTM data to evaluate with actual ASTM control characters. Not the placeholders.</param>
-    ''' <returns>Returns True for complete frames and False otherwise</returns>
-    Function IsAstmFrameComplete(ValidatedFrame As String) As Boolean
+    ''' <returns>Returns True for complete records and False otherwise</returns>
+    Function IsAstmRecordComplete(ValidatedFrame As String) As Boolean
 
         Dim byteVal As Integer
         Dim IsComplete As Boolean = False

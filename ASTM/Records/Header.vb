@@ -1,4 +1,5 @@
 ﻿Imports ASTM.Delimiters.AstmDelimiters
+Imports ASTM.MiscAstmOperations
 
 Namespace Records
     'Common ASTM records structure
@@ -30,7 +31,7 @@ Namespace Records
         'Todo: Remove this Enum from he
         Enum TimeOuts
 
-            'Timeouts expresseed in milliseconds
+            'Timeouts expressed in milliseconds
             'Establishment phase
             ReplyWindowAfterENQ = 15000        'reply with ACK, NAK or EOT
 
@@ -130,6 +131,12 @@ Namespace Records
         Function InterpretHeader(HeaderRecord As String)
             '[STX]1H|\^&|||U-WAM^00-08_Build008^11001^^^^AU501736||||||||LIS2-A2|20170307144247[CR][ETX][CHK1][CHK2][CR][LF]
             'Record should have been validated by checking the checksum characters.
+
+            'Check whether the frame passed is a header.
+            If DetermineFrameType(HeaderRecord) = FrameType.H Then
+            Else
+
+            End If
 
             'STEP 1: Read the delimiter definition
 
