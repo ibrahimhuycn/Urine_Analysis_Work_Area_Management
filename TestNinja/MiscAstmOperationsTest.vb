@@ -2,7 +2,7 @@
 
 <TestClass()> Public Class MiscAstmOperationsTest
 
-    <TestMethod()> Public Sub ReplaceControlCharacters_CheckAllCharactersInUse_CovertedAsciiControlCharacters()
+    <TestMethod()> Public Sub ReplaceControlCharacters_CheckAllCharactersInUse_ConvertedAsciiControlCharacters()
         'ARRANGE
         Dim ExpectedValue As String = ChrW(2) & ChrW(3) & ChrW(4) & ChrW(5) & ChrW(6) & ChrW(10) & ChrW(13) & ChrW(21) & ChrW(23)
         Dim ReplaceChars As New ASTM.MiscAstmOperations
