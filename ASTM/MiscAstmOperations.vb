@@ -2,6 +2,7 @@
 Imports System.Text
 Imports ASTM.astmConstants
 Imports ASTM.Delimiters.AstmDelimiters
+Imports ASTM.ErrorCodes.Errors
 
 Public Class MiscAstmOperations
 
@@ -30,11 +31,11 @@ Public Class MiscAstmOperations
     Public Shared Function DetermineFrameType(astmFrame As String) As FrameType
         'Setting up method name for logging.
         Dim MyName As String = MethodBase.GetCurrentMethod().Name
-        log.Info("Method: " & MyName & " Frame: " & astmFrame)
+        log.Info(String.Format("Method: {0} Frame: {1}", MyName, astmFrame))
 
         Dim SplitFrame() As String = astmFrame.Split(ChrW(FieldDelimiter))
         Dim FrameLetter As String = Right(SplitFrame(0), 1)
-        Dim ReturnValue As FrameType = 404
+        Dim ReturnValue = Invalid_Frame_Type
 
         Select Case FrameLetter
             Case "H"

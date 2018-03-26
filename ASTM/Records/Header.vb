@@ -1,18 +1,14 @@
-﻿Imports ASTM.Delimiters.AstmDelimiters
+﻿Imports System.Reflection
+Imports ASTM.Delimiters.AstmDelimiters
 Imports ASTM.MiscAstmOperations
+Imports ASTM.ErrorCodes.Errors
+Imports System.Text
+Imports System.Runtime.CompilerServices
 
 Namespace Records
     'Common ASTM records structure
 
     Public Class Header
-        'Record Template with chars < 240:
-        '[STX][F#] [Text] [CR][ETX][CHK1][CHK2][CR][LF]
-
-        'Record Template with chars > 240:
-        '[STX] [F#] [Text] [ETB] [CHK1] [CHK2] [CR] [LF]
-        '[STX] [F#] [Text] [ETB] [CHK1] [CHK2] [CR] [LF]
-        '……
-        '[STX] [F#] [Text] [ETX] [CHK1] [CHK2] [CR] [LF]
 
         'Variables used for Testing
         Public Shared TestingTimestamp As String
@@ -21,11 +17,23 @@ Namespace Records
         'control characters.
         Const MaxCharSPerRecord As Integer = 240
 
-        Const MaxRetriesSendingRecord As Integer = 6  'max number of retries after consecutive NAKs from recever.
+        Const MaxRetriesSendingRecord As Integer = 6  'max number of retries after consecutive NAKs from receiver.
+
+        'Initializing log4net logger for this class and getting class name from reflection
+        Private Shared ReadOnly log As log4net.ILog = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType)
+
+        'Record Template with chars < 240:
+        '[STX][F#] [Text] [CR][ETX][CHK1][CHK2][CR][LF]
 
         Enum ASTM_Versions
             LIS2_A2
             E1394_97
+        End Enum
+
+        Enum DelimiterDef
+            DefDefault
+            DefYen
+            DefOther
         End Enum
 
         'Todo: Remove this Enum from he
@@ -40,6 +48,11 @@ Namespace Records
 
         End Enum
 
+        'Record Template with chars > 240:
+        '[STX] [F#] [Text] [ETB] [CHK1] [CHK2] [CR] [LF]
+        '[STX] [F#] [Text] [ETB] [CHK1] [CHK2] [CR] [LF]
+        '……
+        '[STX] [F#] [Text] [ETX] [CHK1] [CHK2] [CR] [LF]
         'Header Record Example: H|\^&|||||||||||E139→4-97|20100822100525<CR>
         ' +-----+--------------+---------------------------------+-------------------+
         ' |  #  | ASTM Field # | ASTM Name                       | VB alias          |
@@ -119,7 +132,56 @@ Namespace Records
             If Is_timestamp_Required = True Then timestamp = DateTime.Now().ToString("yyyyMMddHHmmss")
             TestingTimestamp = timestamp.ToString
 
-            Return String.Format("[STX][F#]{0}{1}{2}{3}{2}{4}{2}{5}{2}{6}{2}{7}{2}{8}{2}{9}{2}{10}{2}{11}{2}{12}{2}{13}{2}{14}[ETX][CHK1][CHK2][CR][LF]", type, DelimiterDef, ChrW(FieldDelimiter), message_id, password, sender, address, reserved, phone, caps, receiver, comments, processing_id, VersionNumber, timestamp)
+            Return String.Format("[STX][F#]{0}{1}{2}{3}{2}{4}{2}{5}{2}{6}{2}{7}{2}{8}{2}{9}{2}{10}{2}{11}{2}{12}{2}{13}{2}{14}[ETX][CHK1][CHK2][CR][LF]",
+                       type,
+                       DelimiterDef,
+                       ChrW(FieldDelimiter),
+                       message_id,
+                       password,
+                       sender,
+                       address,
+                       reserved,
+                       phone,
+                       caps,
+                       receiver,
+                       comments,
+                       processing_id,
+                       VersionNumber,
+                       timestamp)
+        End Function
+
+        ''' <summary>
+        ''' Gets the DelimiterDefinitionType of validated Header frame.
+        ''' Frame is assumed to have been validated.
+        ''' </summary>
+        ''' <param name="HeaderRecord">ASTM Header Record to get the delimiter type as Enum DelimiterDef.</param>
+        ''' <returns>0 = DefDefault, 1 = DefYen, 2 = DefOther</returns>
+        Function GetDelimiterDefType(ByVal HeaderRecord As String) As DelimiterDef
+            'Setting up method name for logging.
+            Dim MyName As String = MethodBase.GetCurrentMethod().Name
+            log.Info(String.Format("Method: {0} Frame: {1}", MyName, HeaderRecord))
+
+            Dim SplitFrame() As String = SplitTheHeader(HeaderRecord)
+            Dim ReturnValue As String
+            'Ensure that the header is valid.
+            If DetermineFrameType(HeaderRecord) = FrameType.H Then
+                'Determine Delimiter
+                Select Case SplitFrame(1)
+                    Case "\^&"
+                        ReturnValue = DelimiterDef.DefDefault
+                    Case "¥^&"
+                        ReturnValue = DelimiterDef.DefYen
+                    Case Else
+                        ReturnValue = DelimiterDef.DefOther
+                        'TODO:Implement some way to do this. For now reply with [NAK].
+                        log.Warn(String.Format("Method: {0}. Delimiter definition not recognized. Delimiter definition: |{1}", MyName, SplitFrame(1)))
+                End Select
+            Else
+                log.Info(String.Format("Invalid record typed passed to Function {0}.", MyName))
+                ReturnValue = Invalid_Frame_Type
+            End If
+
+            Return ReturnValue
         End Function
 
         ''' <summary>
@@ -132,10 +194,36 @@ Namespace Records
             '[STX]1H|\^&|||U-WAM^00-08_Build008^11001^^^^AU501736||||||||LIS2-A2|20170307144247[CR][ETX][CHK1][CHK2][CR][LF]
             'Record should have been validated by checking the checksum characters.
 
+            '00  H          ASTM Record Type ID
+            '01  \^&        Delimiter Definition
+            '02  ---        Message Control ID
+            '03  ---        Access Password
+            '04  U-WAM      Sender Name or ID
+            '05  ---        Sender Street Address
+            '06  ---        Reserved Field
+            '07  ---        Sender Telephone Number
+            '08  ---        Characteristics of Sender
+            '09  ---        Receiver ID
+            '10  ---        Comments
+            '11  ---        Processing ID
+            '12  LIS2-A2    Version Number
+            '13  DateTime   Date/Time of Message | Format: yyyyMMddHHmmss
+
+            'Setting up method name for logging.
+            Dim MyName As String = MethodBase.GetCurrentMethod().Name
+            log.Info(String.Format("Method: {0} Frame: {1}", MyName, HeaderRecord))
+
             'Check whether the frame passed is a header.
             If DetermineFrameType(HeaderRecord) = FrameType.H Then
-            Else
+                Dim SplitFrame() As String = SplitTheHeader(HeaderRecord) 'The array SplitFrame() should have a max of 14 items (13 indexes)
 
+                For FieldNumber As Integer = 0 To SplitFrame.Length() - 1
+
+                Next
+            Else
+                log.Info(String.Format("Invalid record typed passed to Function {0}.", MyName))
+                Return Invalid_Frame_Type
+                Exit Function
             End If
 
             'STEP 1: Read the delimiter definition
@@ -152,6 +240,24 @@ Namespace Records
             'STEP 4: Take necessary actions and notify successful read.
 
             Return 0
+        End Function
+
+        ''' <summary>
+        ''' Splits the Header Record to it's individual Fields and returns all fields as an array.
+        ''' Frame is assumed to have been validated.
+        ''' </summary>
+        ''' <param name="HeaderRecord">ASTM Header Record to be splitted.</param>
+        ''' <returns>An array of all the Fields with a max of 13 indexes</returns>
+        Function SplitTheHeader(ByVal HeaderRecord As String) As String()
+            'Setting up method name for logging.
+            Dim MyName As String = MethodBase.GetCurrentMethod().Name
+            log.Info(String.Format("Method: {0} Frame: {1}", MyName, HeaderRecord))
+
+            Dim SplitFrame() As String = HeaderRecord.Split(ChrW(FieldDelimiter)) 'The array SplitFrame() should have a max of 14 items (13 indexes)
+
+            'Logging Returns
+            log.Info("Method" & MyName & "returns string array, SplitFrame. String array as delimited text: " & SplitFrame.ToDelimitedString("|"))
+            Return SplitFrame
         End Function
 
     End Class
