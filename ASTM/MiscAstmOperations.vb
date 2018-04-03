@@ -9,7 +9,7 @@ Public Class MiscAstmOperations
     'Initializing log4net logger for this class and getting class name from reflection
     Private Shared ReadOnly log As log4net.ILog = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType)
 
-    Dim ExpectNextBlock As Boolean = False
+    Dim expectNextBlock As Boolean = False
 
     Enum FrameType
         H 'Header       0
@@ -30,32 +30,32 @@ Public Class MiscAstmOperations
     ''' <returns>Returns frame type as Enum FrameType.</returns>
     Public Shared Function DetermineFrameType(astmFrame As String) As FrameType
         'Setting up method name for logging.
-        Dim MyName As String = MethodBase.GetCurrentMethod().Name
-        log.Info(String.Format("Method: {0} Frame: {1}", MyName, astmFrame))
+        Dim myName As String = MethodBase.GetCurrentMethod().Name
+        log.Info(String.Format("Method: {0} Frame: {1}", myName, astmFrame))
 
-        Dim SplitFrame() As String = astmFrame.Split(ChrW(FieldDelimiter))
-        Dim FrameLetter As String = Right(SplitFrame(0), 1)
-        Dim ReturnValue = Invalid_Frame_Type
+        Dim splitFrame() As String = astmFrame.Split(ChrW(fieldDelimiter))
+        Dim frameLetter As String = Right(splitFrame(0), 1)
+        Dim returnFrameType = invalidFrameType
 
-        Select Case FrameLetter
+        Select Case frameLetter
             Case "H"
-                ReturnValue = FrameType.H
+                returnFrameType = FrameType.H
             Case "P"
-                ReturnValue = FrameType.P
+                returnFrameType = FrameType.P
             Case "O"
-                ReturnValue = FrameType.O
+                returnFrameType = FrameType.O
             Case "Q"
-                ReturnValue = FrameType.Q
+                returnFrameType = FrameType.Q
             Case "R"
-                ReturnValue = FrameType.R
+                returnFrameType = FrameType.R
             Case "C"
-                ReturnValue = FrameType.C
+                returnFrameType = FrameType.C
             Case "L"
-                ReturnValue = FrameType.L
+                returnFrameType = FrameType.L
         End Select
 
-        log.Info(MyName & " returned " & ReturnValue)
-        Return ReturnValue
+        log.Info(myName & " returned " & returnFrameType)
+        Return returnFrameType
     End Function
 
     ''' <summary>
@@ -66,8 +66,8 @@ Public Class MiscAstmOperations
     ''' <returns>string containing checksum</returns>
     Public Function GetCheckSumValue(ByVal frame As String) As String
         'Setting up method name for logging.
-        Dim MyName As String = MethodBase.GetCurrentMethod().Name
-        log.Info("Method: " & MyName & " Frame: " & frame)
+        Dim myName As String = MethodBase.GetCurrentMethod().Name
+        log.Info("Method: " & myName & " Frame: " & frame)
 
         frame = ReplaceControlCharacters(frame)
         Dim checksum As String = "00"
@@ -93,7 +93,7 @@ Public Class MiscAstmOperations
             checksum = Convert.ToString(sumOfChars Mod 256, 16).ToUpper()
         End If
 
-        log.Info(MyName & " returned " & If(checksum.Length = 1, "0" & checksum, checksum))
+        log.Info(myName & " returned " & If(checksum.Length = 1, "0" & checksum, checksum))
         Return If(checksum.Length = 1, "0" & checksum, checksum)
 
     End Function
@@ -106,62 +106,62 @@ Public Class MiscAstmOperations
     ''' <returns>Returns True for valid checksums and False otherwise</returns>
     Function IsAstmFrameValid(frame As String) As Boolean
         'Setting up method name for logging.
-        Dim MyName As String = MethodBase.GetCurrentMethod().Name
-        log.Info("Method: " & MyName & " Frame: " & frame)
+        Dim myName As String = MethodBase.GetCurrentMethod().Name
+        log.Info("Method: " & myName & " Frame: " & frame)
 
         'Calculate ASTM checksum for the provided ASTM frame.
         'Compare checksum in the frame with the calculated checksum.
         'ASTM frame ending pattern: [CHK1][CHK2][CR][LF]
         'MsgBox(Strings.Mid(frame, frame.Length - 3, 2))
-        Dim IsValid As Boolean = False
-        If GetCheckSumValue(frame) = Mid(frame, frame.Length - 3, 2) Then IsValid = True
-        log.Info(MyName & " returned " & IsValid)
-        Return IsValid
+        Dim isValid As Boolean = False
+        If GetCheckSumValue(frame) = Mid(frame, frame.Length - 3, 2) Then isValid = True
+        log.Info(myName & " returned " & isValid)
+        Return isValid
     End Function
 
     ''' <summary>
     ''' Checks whether astm record is complete, checks whether to expect another block of the record.
     ''' This is achieved by checking the start of the frame for [STX] and the end of the frame for either [CR][ETX] or [ETB]
     ''' </summary>
-    ''' <param name="ValidatedFrame">frame of ASTM data to evaluate with actual ASTM control characters. Not the placeholders.</param>
+    ''' <param name="validatedFrame">frame of ASTM data to evaluate with actual ASTM control characters. Not the placeholders.</param>
     ''' <returns>Returns True for complete records and False otherwise</returns>
-    Function IsAstmRecordComplete(ValidatedFrame As String) As Boolean
+    Function IsAstmRecordComplete(validatedFrame As String) As Boolean
         'Setting up method name for logging.
-        Dim MyName As String = MethodBase.GetCurrentMethod().Name
-        log.Info("Method: " & MyName & " Frame: " & ValidatedFrame)
+        Dim myName As String = MethodBase.GetCurrentMethod().Name
+        log.Info("Method: " & myName & " Frame: " & validatedFrame)
 
         Dim byteVal As Integer
-        Dim IsComplete As Boolean = False
-        ExpectNextBlock = False
+        Dim isComplete As Boolean = False
+        expectNextBlock = False
         Dim GotETX As Boolean = False
 
         'Look for ASCII [STX] at the beginning of the frame.
-        If Left(ValidatedFrame, 1) = ChrW(2) Then
+        If Left(validatedFrame, 1) = ChrW(2) Then
             'Starting at the end of the frame to look for pattern [CR][ETX] Or [ETB]
-            For idx As Integer = ValidatedFrame.Length - 1 To 0 Step -1
+            For idx As Integer = validatedFrame.Length - 1 To 0 Step -1
 
-                byteVal = Convert.ToInt32(ValidatedFrame(idx))
+                byteVal = Convert.ToInt32(validatedFrame(idx))
                 ' MsgBox (byteVal)
                 Select Case byteVal
                     Case CR   'the [CR][LF] should not be considered as a [CR] for end of frame.
-                        If GotETX = True Then IsComplete = True
+                        If GotETX = True Then isComplete = True
                     Case ETX
                         GotETX = True
                     Case ETB
-                        IsComplete = True
-                        ExpectNextBlock = True
+                        isComplete = True
+                        expectNextBlock = True
                 End Select
-                If IsComplete Then Exit For
+                If isComplete Then Exit For
 
             Next
 
-            log.Info(MyName & " returned " & IsComplete)
-            Return IsComplete
+            log.Info(myName & " returned " & isComplete)
+            Return isComplete
         Else
 
-            log.Info(MyName & " returned " & IsComplete)
+            log.Info(myName & " returned " & isComplete)
             'A frame which does not start with ASCII [STX] is invalid.
-            Return IsComplete
+            Return isComplete
         End If
     End Function
 
@@ -173,23 +173,23 @@ Public Class MiscAstmOperations
     ''' <returns>ASTM frame with actual ASCII control characters</returns>
     Public Function ReplaceControlCharacters(astmFrame As String) As String
         'Setting up method name for logging.
-        Dim MyName As String = MethodBase.GetCurrentMethod().Name
-        log.Info("Method: " & MyName & " Frame: " & astmFrame)
+        Dim myName As String = MethodBase.GetCurrentMethod().Name
+        log.Info("Method: " & myName & " Frame: " & astmFrame)
 
-        Dim ReplacedAstmFrame As StringBuilder = New StringBuilder(astmFrame)
+        Dim replacedAstmFrame As StringBuilder = New StringBuilder(astmFrame)
 
-        ReplacedAstmFrame.Replace("[STX]", ChrW(STX))
-        ReplacedAstmFrame.Replace("[ETX]", ChrW(ETX))
-        ReplacedAstmFrame.Replace("[EOT]", ChrW(EOT))
-        ReplacedAstmFrame.Replace("[ENQ]", ChrW(ENQ))
-        ReplacedAstmFrame.Replace("[ACK]", ChrW(ACK))
-        ReplacedAstmFrame.Replace("[LF]", ChrW(LF))
-        ReplacedAstmFrame.Replace("[CR]", ChrW(CR))
-        ReplacedAstmFrame.Replace("[NAK]", ChrW(NAK))
-        ReplacedAstmFrame.Replace("[ETB]", ChrW(ETB))
+        replacedAstmFrame.Replace("[STX]", ChrW(STX))
+        replacedAstmFrame.Replace("[ETX]", ChrW(ETX))
+        replacedAstmFrame.Replace("[EOT]", ChrW(EOT))
+        replacedAstmFrame.Replace("[ENQ]", ChrW(ENQ))
+        replacedAstmFrame.Replace("[ACK]", ChrW(ACK))
+        replacedAstmFrame.Replace("[LF]", ChrW(LF))
+        replacedAstmFrame.Replace("[CR]", ChrW(CR))
+        replacedAstmFrame.Replace("[NAK]", ChrW(NAK))
+        replacedAstmFrame.Replace("[ETB]", ChrW(ETB))
 
-        log.Info(MyName & " returned " & ReplacedAstmFrame.ToString)
-        Return ReplacedAstmFrame.ToString
+        log.Info(myName & " returned " & replacedAstmFrame.ToString)
+        Return replacedAstmFrame.ToString
     End Function
 
 End Class

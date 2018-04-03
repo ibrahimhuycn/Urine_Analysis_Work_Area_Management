@@ -2,8 +2,6 @@
 Imports ASTM.Delimiters.AstmDelimiters
 Imports ASTM.MiscAstmOperations
 Imports ASTM.ErrorCodes.Errors
-Imports System.Text
-Imports System.Runtime.CompilerServices
 
 Namespace Records
     'Common ASTM records structure
@@ -11,7 +9,7 @@ Namespace Records
     Public Class Header
 
         'Variables used for Testing
-        Public Shared TestingTimestamp As String
+        Public Shared testingTimestamp As String
 
         'Max characters in ASTM record cannot exceed 240 including the overhead of
         'control characters.
@@ -25,7 +23,7 @@ Namespace Records
         'Record Template with chars < 240:
         '[STX][F#] [Text] [CR][ETX][CHK1][CHK2][CR][LF]
 
-        Enum ASTM_Versions
+        Enum AstmVersions
             LIS2_A2
             E1394_97
         End Enum
@@ -37,14 +35,14 @@ Namespace Records
         End Enum
 
         'Todo: Remove this Enum from he
-        Enum TimeOuts
+        Enum Timeouts
 
             'Timeouts expressed in milliseconds
             'Establishment phase
-            ReplyWindowAfterENQ = 15000        'reply with ACK, NAK or EOT
+            replyWindowAfterEnq = 15000        'reply with ACK, NAK or EOT
 
-            MinimumENQWaitAfterNAK = 10000     'Have to wait for min 10 sec before another ENQ
-            ENQWaitAfterENQClash = 20000       'Server have to wait min 20 before sending ENQ after an ENQ Clash
+            minimumEnqWaitAfterNak = 10000     'Have to wait for min 10 sec before another ENQ
+            enqWaitAfterEnqClash = 20000       'Server have to wait min 20 before sending ENQ after an ENQ Clash
 
         End Enum
 
@@ -90,7 +88,7 @@ Namespace Records
         ''' Required details will be determined from the specific instruments documentation.
         ''' </summary>
         ''' <param name="sender">Sender Name or ID.</param>
-        ''' <param name="Is_timestamp_Required">Boolean determines whether timestamp should be included in the ASTM header record.</param>
+        ''' <param name="isTimeStampRequired">Boolean determines whether timestamp should be included in the ASTM header record.</param>
         ''' <param name="astmVersion">Default: LIS2-A2.Optional parameter. Version Number for ASTM Specification.</param>
         ''' <param name="repeatDelimiter">Default: Backslash ASCII 92. Repeat Delimiter, included in delimiter definition. </param>
         ''' <param name="message_id">This is a unique number or other ID that uniquely identifies the transmission for use in network systems.</param>
@@ -104,10 +102,10 @@ Namespace Records
         ''' <param name="processing_id">Processing IDs: P, T, D, Q. Production, Training, Debugging and Quality Control respectively </param>
         ''' <returns>Header record with placeholders for control characters.</returns>
         Function GenerateHeader(ByVal sender As String,
-        ByVal Is_timestamp_Required As Boolean,
-        ByVal Optional astmVersion As ASTM_Versions = ASTM_Versions.LIS2_A2,
-        ByVal Optional repeatDelimiter As Integer = RepeatDelimiter,
-        ByVal Optional message_id As String = Nothing,
+        ByVal isTimeStampRequired As Boolean,
+        ByVal Optional astmVersion As AstmVersions = AstmVersions.LIS2_A2,
+        ByVal Optional repeatDelimiter As Integer = repeatDelimiter,
+        ByVal Optional messageId As String = Nothing,
         ByVal Optional password As String = Nothing,
         ByVal Optional address As String = Nothing,
         ByVal Optional reserved As String = Nothing,
@@ -115,28 +113,28 @@ Namespace Records
         ByVal Optional caps As String = Nothing,
         ByVal Optional receiver As String = Nothing,
         ByVal Optional comments As String = Nothing,
-        ByVal Optional processing_id As String = Nothing)
+        ByVal Optional processingId As String = Nothing)
 
             'Usage Status in Order Record Header.
             'Generate Delimiter Definition.
             Const type As String = "H"
-            Dim DelimiterDef As String = ChrW(FieldDelimiter) & ChrW(repeatDelimiter) & ChrW(ComponentDelimiter) & ChrW(EscapeCharacter)
+            Dim delimiterDef As String = ChrW(fieldDelimiter) & ChrW(repeatDelimiter) & ChrW(componentDelimiter) & ChrW(escapeCharacter)
 
             'Setting the Default Protocol as LIS2-A2. No Need to read from disk(Settings file.) That makes the code slower.
-            Dim VersionNumber As String = "LIS2-A2"
+            Dim versionNumber As String = "LIS2-A2"
             'If the Version is specified as E1394-97 then the following line gets executed.
-            If astmVersion = ASTM_Versions.E1394_97 Then VersionNumber = My.Settings.E1394_97
+            If astmVersion = AstmVersions.E1394_97 Then versionNumber = My.Settings.E1394_97
 
             'Setting timestamp if required. Date and time of message format is fixed with “YYYYMMDDHHMMSS”
             Dim timestamp As String = ""
-            If Is_timestamp_Required = True Then timestamp = DateTime.Now().ToString("yyyyMMddHHmmss")
-            TestingTimestamp = timestamp.ToString
+            If isTimeStampRequired = True Then timestamp = DateTime.Now().ToString("yyyyMMddHHmmss")
+            testingTimestamp = timestamp.ToString
 
             Return String.Format("[STX][F#]{0}{1}{2}{3}{2}{4}{2}{5}{2}{6}{2}{7}{2}{8}{2}{9}{2}{10}{2}{11}{2}{12}{2}{13}{2}{14}[ETX][CHK1][CHK2][CR][LF]",
                        type,
-                       DelimiterDef,
-                       ChrW(FieldDelimiter),
-                       message_id,
+                       delimiterDef,
+                       ChrW(fieldDelimiter),
+                       messageId,
                        password,
                        sender,
                        address,
@@ -145,8 +143,8 @@ Namespace Records
                        caps,
                        receiver,
                        comments,
-                       processing_id,
-                       VersionNumber,
+                       processingId,
+                       versionNumber,
                        timestamp)
         End Function
 
@@ -154,43 +152,43 @@ Namespace Records
         ''' Gets the DelimiterDefinitionType of validated Header frame.
         ''' Frame is assumed to have been validated.
         ''' </summary>
-        ''' <param name="HeaderRecord">ASTM Header Record to get the delimiter type as Enum DelimiterDef.</param>
+        ''' <param name="headerRecord">ASTM Header Record to get the delimiter type as Enum DelimiterDef.</param>
         ''' <returns>0 = DefDefault, 1 = DefYen, 2 = DefOther</returns>
-        Function GetDelimiterDefType(ByVal HeaderRecord As String) As DelimiterDef
+        Function GetDelimiterDefType(ByVal headerRecord As String) As DelimiterDef
             'Setting up method name for logging.
-            Dim MyName As String = MethodBase.GetCurrentMethod().Name
-            log.Info(String.Format("Method: {0} Frame: {1}", MyName, HeaderRecord))
+            Dim myName As String = MethodBase.GetCurrentMethod().Name
+            log.Info(String.Format("Method: {0} Frame: {1}", myName, headerRecord))
 
-            Dim SplitFrame() As String = SplitTheHeader(HeaderRecord)
-            Dim ReturnValue As String
+            Dim splitFrame() As String = SplitTheHeader(headerRecord)
+            Dim delimiterDefType As String
             'Ensure that the header is valid.
-            If DetermineFrameType(HeaderRecord) = FrameType.H Then
+            If DetermineFrameType(headerRecord) = FrameType.H Then
                 'Determine Delimiter
-                Select Case SplitFrame(1)
+                Select Case splitFrame(1)
                     Case "\^&"
-                        ReturnValue = DelimiterDef.DefDefault
+                        delimiterDefType = DelimiterDef.DefDefault
                     Case "¥^&"
-                        ReturnValue = DelimiterDef.DefYen
+                        delimiterDefType = DelimiterDef.DefYen
                     Case Else
-                        ReturnValue = DelimiterDef.DefOther
+                        delimiterDefType = DelimiterDef.DefOther
                         'TODO:Implement some way to do this. For now reply with [NAK].
-                        log.Warn(String.Format("Method: {0}. Delimiter definition not recognized. Delimiter definition: |{1}", MyName, SplitFrame(1)))
+                        log.Warn(String.Format("Method: {0}. Delimiter definition not recognized. Delimiter definition: |{1}", myName, splitFrame(1)))
                 End Select
             Else
-                log.Info(String.Format("Invalid record typed passed to Function {0}.", MyName))
-                ReturnValue = Invalid_Frame_Type
+                log.Info(String.Format("Invalid record typed passed to Function {0}.", myName))
+                delimiterDefType = invalidFrameType
             End If
 
-            Return ReturnValue
+            Return delimiterDefType
         End Function
 
         ''' <summary>
         ''' Interprets validated ASTM header record.
         ''' Records are validated by checking for valid checksum.
         ''' </summary>
-        ''' <param name="HeaderRecord">ASTM Header Record to be interpreted.</param>
+        ''' <param name="headerRecord">ASTM Header Record to be interpreted.</param>
         ''' <returns>I have no idea what this should return yet. Maybe an ACK equivalent for a successfully decoded message.</returns>
-        Function InterpretHeader(HeaderRecord As String)
+        Function InterpretHeader(headerRecord As String)
             '[STX]1H|\^&|||U-WAM^00-08_Build008^11001^^^^AU501736||||||||LIS2-A2|20170307144247[CR][ETX][CHK1][CHK2][CR][LF]
             'Record should have been validated by checking the checksum characters.
 
@@ -210,19 +208,19 @@ Namespace Records
             '13  DateTime   Date/Time of Message | Format: yyyyMMddHHmmss
 
             'Setting up method name for logging.
-            Dim MyName As String = MethodBase.GetCurrentMethod().Name
-            log.Info(String.Format("Method: {0} Frame: {1}", MyName, HeaderRecord))
+            Dim myName As String = MethodBase.GetCurrentMethod().Name
+            log.Info(String.Format("Method: {0} Frame: {1}", myName, headerRecord))
 
             'Check whether the frame passed is a header.
-            If DetermineFrameType(HeaderRecord) = FrameType.H Then
-                Dim SplitFrame() As String = SplitTheHeader(HeaderRecord) 'The array SplitFrame() should have a max of 14 items (13 indexes)
+            If DetermineFrameType(headerRecord) = FrameType.H Then
+                Dim splitFrame() As String = SplitTheHeader(headerRecord) 'The array SplitFrame() should have a max of 14 items (13 indexes)
 
-                For FieldNumber As Integer = 0 To SplitFrame.Length() - 1
+                For fieldNumber As Integer = 0 To splitFrame.Length() - 1
 
                 Next
             Else
-                log.Info(String.Format("Invalid record typed passed to Function {0}.", MyName))
-                Return Invalid_Frame_Type
+                log.Info(String.Format("Invalid record typed passed to Function {0}.", myName))
+                Return invalidFrameType
                 Exit Function
             End If
 
@@ -246,18 +244,18 @@ Namespace Records
         ''' Splits the Header Record to it's individual Fields and returns all fields as an array.
         ''' Frame is assumed to have been validated.
         ''' </summary>
-        ''' <param name="HeaderRecord">ASTM Header Record to be splitted.</param>
+        ''' <param name="headerRecord">ASTM Header Record to be splitted.</param>
         ''' <returns>An array of all the Fields with a max of 13 indexes</returns>
-        Function SplitTheHeader(ByVal HeaderRecord As String) As String()
+        Function SplitTheHeader(ByVal headerRecord As String) As String()
             'Setting up method name for logging.
-            Dim MyName As String = MethodBase.GetCurrentMethod().Name
-            log.Info(String.Format("Method: {0} Frame: {1}", MyName, HeaderRecord))
+            Dim myName As String = MethodBase.GetCurrentMethod().Name
+            log.Info(String.Format("Method: {0} Frame: {1}", myName, headerRecord))
 
-            Dim SplitFrame() As String = HeaderRecord.Split(ChrW(FieldDelimiter)) 'The array SplitFrame() should have a max of 14 items (13 indexes)
+            Dim splitFrame() As String = headerRecord.Split(ChrW(fieldDelimiter)) 'The array SplitFrame() should have a max of 14 items (13 indexes)
 
             'Logging Returns
-            log.Info("Method" & MyName & "returns string array, SplitFrame. String array as delimited text: " & SplitFrame.ToDelimitedString("|"))
-            Return SplitFrame
+            log.Info("Method" & myName & "returns string array, SplitFrame. String array as delimited text: " & splitFrame.ToDelimitedString("|"))
+            Return splitFrame
         End Function
 
     End Class

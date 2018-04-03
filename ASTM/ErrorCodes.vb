@@ -1,7 +1,7 @@
 ﻿Public Class ErrorCodes
 
     Enum Errors
-        Invalid_Frame_Type = 404
+        invalidFrameType = 404
     End Enum
 
 End Class

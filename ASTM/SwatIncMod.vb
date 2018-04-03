@@ -6,15 +6,15 @@ Module SwatIncMod
     ''' <summary>
     ''' Returns a delimited string from an Array.
     ''' </summary>
-    ''' <param name="Ar"></param>
+    ''' <param name="stringArray"></param>
     ''' <param name="delimiter"></param>
     ''' <returns></returns>
     ''' <remarks>
     ''' </remarks>
-    <Extension()> Public Function ToDelimitedString(ByVal Ar As String(), ByVal delimiter As String) As String
+    <Extension()> Public Function ToDelimitedString(ByVal stringArray As String(), ByVal delimiter As String) As String
         Dim sb As New StringBuilder
 
-        For Each buf As String In Ar
+        For Each buf As String In stringArray
             sb.Append(buf)
             sb.Append(delimiter)
         Next

@@ -13,7 +13,7 @@ Namespace Records
             Dim GenHeaderRecord As New ASTM.Records.Header
             Const ExpectedHeader As String = "[STX][F#]H|\^&|||TestNinja||||||||LIS2-A2|[ETX][CHK1][CHK2][CR][LF]"
             'ACT
-            Dim ActualHeader As String = GenHeaderRecord.GenerateHeader("TestNinja", False,, RepeatDelimiter)
+            Dim ActualHeader As String = GenHeaderRecord.GenerateHeader("TestNinja", False,, repeatDelimiter)
 
             'ASSERT
             'MsgBox(ActualHeader & vbCrLf & ExpectedHeader)
@@ -27,7 +27,7 @@ Namespace Records
             Dim GenHeaderRecord As New ASTM.Records.Header
             Const ExpectedHeader As String = "[STX][F#]H|¥^&|||TestNinja||||||||LIS2-A2|[ETX][CHK1][CHK2][CR][LF]"
             'ACT
-            Dim ActualHeader As String = GenHeaderRecord.GenerateHeader("TestNinja", False,, RepeatDelimiterYen)
+            Dim ActualHeader As String = GenHeaderRecord.GenerateHeader("TestNinja", False,, repeatDelimiterYen)
 
             'ASSERT
             'MsgBox(ActualHeader & vbCrLf & ExpectedHeader)
@@ -41,7 +41,7 @@ Namespace Records
             Dim GenHeaderRecord As New ASTM.Records.Header
             Const ExpectedHeader As String = "[STX][F#]H|\^&|||TestNinja||||||||E1394-97|[ETX][CHK1][CHK2][CR][LF]"
             'ACT
-            Dim ActualHeader As String = GenHeaderRecord.GenerateHeader("TestNinja", False, ASTM_Versions.E1394_97, RepeatDelimiter)
+            Dim ActualHeader As String = GenHeaderRecord.GenerateHeader("TestNinja", False, AstmVersions.E1394_97, repeatDelimiter)
 
             'ASSERT
             'MsgBox(ActualHeader & vbCrLf & ExpectedHeader)
@@ -55,8 +55,8 @@ Namespace Records
             Dim GenHeaderRecord As New ASTM.Records.Header
 
             'ACT
-            Dim ActualHeader As String = GenHeaderRecord.GenerateHeader("TestNinja", True,, RepeatDelimiter)
-            Dim ExpectedHeader As String = String.Format("[STX][F#]H|\^&|||TestNinja||||||||LIS2-A2|{0}[ETX][CHK1][CHK2][CR][LF]", TestingTimestamp)
+            Dim ActualHeader As String = GenHeaderRecord.GenerateHeader("TestNinja", True,, repeatDelimiter)
+            Dim ExpectedHeader As String = String.Format("[STX][F#]H|\^&|||TestNinja||||||||LIS2-A2|{0}[ETX][CHK1][CHK2][CR][LF]", testingTimestamp)
 
             'ASSERT
             'MsgBox(ActualHeader & vbCrLf & ExpectedHeader)
@@ -70,8 +70,8 @@ Namespace Records
             Dim GenHeaderRecord As New ASTM.Records.Header
 
             'ACT
-            Dim ActualHeader As String = GenHeaderRecord.GenerateHeader("TestNinja", True,, RepeatDelimiter, "Msg", "Pass", "Addr", "Reserved", "7657111", "c.a.ps", "Receiver", "Comment", "PId")
-            Dim ExpectedHeader As String = String.Format("[STX][F#]H|\^&|Msg|Pass|TestNinja|Addr|Reserved|7657111|c.a.ps|Receiver|Comment|PId|LIS2-A2|{0}[ETX][CHK1][CHK2][CR][LF]", TestingTimestamp)
+            Dim ActualHeader As String = GenHeaderRecord.GenerateHeader("TestNinja", True,, repeatDelimiter, "Msg", "Pass", "Addr", "Reserved", "7657111", "c.a.ps", "Receiver", "Comment", "PId")
+            Dim ExpectedHeader As String = String.Format("[STX][F#]H|\^&|Msg|Pass|TestNinja|Addr|Reserved|7657111|c.a.ps|Receiver|Comment|PId|LIS2-A2|{0}[ETX][CHK1][CHK2][CR][LF]", testingTimestamp)
 
             'ASSERT
             'MsgBox(ActualHeader & vbCrLf & ExpectedHeader)
@@ -86,7 +86,7 @@ Namespace Records
 
             'ACT
             Dim ActualHeader As String = GenHeaderRecord.InterpretHeader(String.Format("{0}3L|1|N{1}{2}B8{3}{4}", ChrW(STX), ChrW(CR), ChrW(ETX), ChrW(CR), ChrW(LF)))
-            Dim ExpectedHeader As String = Invalid_Frame_Type
+            Dim ExpectedHeader As String = invalidFrameType
 
             'ASSERT
             'MsgBox(ActualHeader & vbCrLf & ExpectedHeader)
