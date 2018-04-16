@@ -11,6 +11,7 @@ Namespace Records
         'Variables used for Testing
         Public Shared testingTimestamp As String
 
+        'Todo: The following two variables does not belong here. Remove them
         'Max characters in ASTM record cannot exceed 240 including the overhead of
         'control characters.
         Const MaxCharSPerRecord As Integer = 240
@@ -91,7 +92,7 @@ Namespace Records
         ''' <param name="isTimeStampRequired">Boolean determines whether timestamp should be included in the ASTM header record.</param>
         ''' <param name="astmVersion">Default: LIS2-A2.Optional parameter. Version Number for ASTM Specification.</param>
         ''' <param name="repeatDelimiter">Default: Backslash ASCII 92. Repeat Delimiter, included in delimiter definition. </param>
-        ''' <param name="message_id">This is a unique number or other ID that uniquely identifies the transmission for use in network systems.</param>
+        ''' <param name="messageId">This is a unique number or other ID that uniquely identifies the transmission for use in network systems.</param>
         ''' <param name="password">This is a level security/access password as mutually agreed upon by the sender and receiver.</param>
         ''' <param name="address">This text value shall contain the street address of the sender</param>
         ''' <param name="reserved">This field is currently unused but reserved for future use.</param>
@@ -99,7 +100,7 @@ Namespace Records
         ''' <param name="caps">This field contains any characteristics of the sender such as, parity, checksums, optional protocols, etc. necessary for establishing a communication link with the sender.</param>
         ''' <param name="receiver">The name or other ID of the receiver. Its purpose is verification that the transmission is indeed for the receiver.</param>
         ''' <param name="comments">This text field shall contain any comments or special instructions relating to the subsequent records to be transmitted.</param>
-        ''' <param name="processing_id">Processing IDs: P, T, D, Q. Production, Training, Debugging and Quality Control respectively </param>
+        ''' <param name="processingId">Processing IDs: P, T, D, Q. Production, Training, Debugging and Quality Control respectively </param>
         ''' <returns>Header record with placeholders for control characters.</returns>
         Function GenerateHeader(ByVal sender As String,
         ByVal isTimeStampRequired As Boolean,
@@ -214,10 +215,9 @@ Namespace Records
             'Check whether the frame passed is a header.
             If DetermineFrameType(headerRecord) = FrameType.H Then
                 Dim splitFrame() As String = SplitTheHeader(headerRecord) 'The array SplitFrame() should have a max of 14 items (13 indexes)
-
-                For fieldNumber As Integer = 0 To splitFrame.Length() - 1
-
-                Next
+                'TODO: Pass the fields that component delimited and repeat delimited to their respective functions to get Individual Fields.
+                'TODO: Component delimited fields in header:
+                'TODO: Repeat delimited fields in Header:
             Else
                 log.Info(String.Format("Invalid record typed passed to Function {0}.", myName))
                 Return invalidFrameType
@@ -251,7 +251,8 @@ Namespace Records
             Dim myName As String = MethodBase.GetCurrentMethod().Name
             log.Info(String.Format("Method: {0} Frame: {1}", myName, headerRecord))
 
-            Dim splitFrame() As String = headerRecord.Split(ChrW(fieldDelimiter)) 'The array SplitFrame() should have a max of 14 items (13 indexes)
+            'The array SplitFrame() should have a max of 14 items (13 indexes)
+            Dim splitFrame() As String = headerRecord.Split(ChrW(fieldDelimiter))
 
             'Logging Returns
             log.Info("Method" & myName & "returns string array, SplitFrame. String array as delimited text: " & splitFrame.ToDelimitedString("|"))

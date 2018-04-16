@@ -26,14 +26,14 @@ Public Class MiscAstmOperations
     ''' <summary>
     ''' Determines the type of frame by reading the
     ''' </summary>
-    ''' <param name="astmFrame">frame of ASTM data to evaluate</param>
+    ''' <param name="AstmFrame">frame of ASTM data to evaluate</param>
     ''' <returns>Returns frame type as Enum FrameType.</returns>
-    Public Shared Function DetermineFrameType(astmFrame As String) As FrameType
+    Public Shared Function DetermineFrameType(AstmFrame As String) As FrameType
         'Setting up method name for logging.
         Dim myName As String = MethodBase.GetCurrentMethod().Name
-        log.Info(String.Format("Method: {0} Frame: {1}", myName, astmFrame))
+        log.Info(String.Format("Method: {0} Frame: {1}", myName, AstmFrame))
 
-        Dim splitFrame() As String = astmFrame.Split(ChrW(fieldDelimiter))
+        Dim splitFrame() As String = AstmFrame.Split(ChrW(fieldDelimiter))
         Dim frameLetter As String = Right(splitFrame(0), 1)
         Dim returnFrameType = invalidFrameType
 
@@ -62,20 +62,20 @@ Public Class MiscAstmOperations
     ''' Calculates checksum of an ASTM frame, calculates characters after STX,
     ''' up to and including the ETX or ETB. Method assumes the frame contains an ETX or ETB.
     ''' </summary>
-    ''' <param name="frame">frame of ASTM data to evaluate</param>
+    ''' <param name="Frame">frame of ASTM data to evaluate</param>
     ''' <returns>string containing checksum</returns>
-    Public Function GetCheckSumValue(ByVal frame As String) As String
+    Public Function GetCheckSumValue(ByVal Frame As String) As String
         'Setting up method name for logging.
         Dim myName As String = MethodBase.GetCurrentMethod().Name
-        log.Info("Method: " & myName & " Frame: " & frame)
+        log.Info("Method: " & myName & " Frame: " & Frame)
 
-        frame = ReplaceControlCharacters(frame)
+        Frame = ReplaceControlCharacters(Frame)
         Dim checksum As String = "00"
         Dim byteVal As Integer = 0
         Dim sumOfChars As Integer = 0
         Dim complete As Boolean = False
-        For idx As Integer = 0 To frame.Length - 1
-            byteVal = Convert.ToInt32(frame(idx))
+        For idx As Integer = 0 To Frame.Length - 1
+            byteVal = Convert.ToInt32(Frame(idx))
             Select Case byteVal
                 Case STX
                     sumOfChars = 0
@@ -169,14 +169,14 @@ Public Class MiscAstmOperations
     ''' Replaces display ASTM control characters (i.e., STX, ETX etc) with their ASCII values
     ''' for calculation of checksum.
     ''' </summary>
-    ''' <param name="astmFrame">frame of ASTM data to evaluate</param>
+    ''' <param name="AstmFrame">frame of ASTM data to evaluate</param>
     ''' <returns>ASTM frame with actual ASCII control characters</returns>
-    Public Function ReplaceControlCharacters(astmFrame As String) As String
+    Public Function ReplaceControlCharacters(AstmFrame As String) As String
         'Setting up method name for logging.
         Dim myName As String = MethodBase.GetCurrentMethod().Name
-        log.Info("Method: " & myName & " Frame: " & astmFrame)
+        log.Info("Method: " & myName & " Frame: " & AstmFrame)
 
-        Dim replacedAstmFrame As StringBuilder = New StringBuilder(astmFrame)
+        Dim replacedAstmFrame As StringBuilder = New StringBuilder(AstmFrame)
 
         replacedAstmFrame.Replace("[STX]", ChrW(STX))
         replacedAstmFrame.Replace("[ETX]", ChrW(ETX))
