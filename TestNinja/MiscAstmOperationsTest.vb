@@ -1,4 +1,5 @@
 ﻿Imports ASTM.astmConstants
+Imports ASTM.MiscAstmOperations
 
 <TestClass()> Public Class MiscAstmOperationsTest
 
@@ -97,15 +98,15 @@
         Dim ExpectedValue4 As Integer = 3
         Dim ExpectedValue5 As Integer = 5
         Dim ExpectedValue6 As Integer = 7
-        Dim GetFrameType As New ASTM.MiscAstmOperations
+
         'ACT
-        Dim ActualValue As Integer = GetFrameType.DetermineFrameType(TestAstmFrame0)
-        Dim ActualValue1 As Integer = GetFrameType.DetermineFrameType(TestAstmFrame1)
-        Dim ActualValue2 As Integer = GetFrameType.DetermineFrameType(TestAstmFrame2)
-        Dim ActualValue3 As Integer = GetFrameType.DetermineFrameType(TestAstmFrame3)
-        Dim ActualValue4 As Integer = GetFrameType.DetermineFrameType(TestAstmFrame4)
-        Dim ActualValue5 As Integer = GetFrameType.DetermineFrameType(TestAstmFrame5)
-        Dim ActualValue6 As Integer = GetFrameType.DetermineFrameType(TestAstmFrame6)
+        Dim ActualValue As Integer = DetermineFrameType(TestAstmFrame0)
+        Dim ActualValue1 As Integer = DetermineFrameType(TestAstmFrame1)
+        Dim ActualValue2 As Integer = DetermineFrameType(TestAstmFrame2)
+        Dim ActualValue3 As Integer = DetermineFrameType(TestAstmFrame3)
+        Dim ActualValue4 As Integer = DetermineFrameType(TestAstmFrame4)
+        Dim ActualValue5 As Integer = DetermineFrameType(TestAstmFrame5)
+        Dim ActualValue6 As Integer = DetermineFrameType(TestAstmFrame6)
         'MsgBox(ActualValue)
         'ASSERT
         Assert.AreEqual(ActualValue, ExpectedValue)
