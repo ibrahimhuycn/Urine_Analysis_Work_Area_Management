@@ -2,6 +2,7 @@
 Imports ASTM.Delimiters.AstmDelimiters
 Imports ASTM.MiscAstmOperations
 Imports ASTM.ErrorCodes.Errors
+Imports ASTM.NestedDelimiting
 
 Namespace Records
     'Common ASTM records structure
@@ -25,11 +26,11 @@ Namespace Records
         '[STX][F#] [Text] [CR][ETX][CHK1][CHK2][CR][LF]
 
         Enum AstmVersions
-            LIS2_A2
+            Lis2A2
             E1394_97
         End Enum
 
-        Enum DelimiterDef
+        Enum DelimiterDefinition
             DefDefault
             DefYen
             DefOther
@@ -53,100 +54,70 @@ Namespace Records
         '……
         '[STX] [F#] [Text] [ETX] [CHK1] [CHK2] [CR] [LF]
         'Header Record Example: H|\^&|||||||||||E139→4-97|20100822100525<CR>
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |  #  | ASTM Field # | ASTM Name                       | VB alias          |
-        ' +=====+==============+=================================+===================+
-        ' |   1 |        7.1.1 |             ASTM Record Type ID |              type |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |   2 |        7.1.2 |            Delimiter Definition |     Delimiter Def |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |   3 |        7.1.3 |              Message Control ID |        message_id |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |   4 |        7.1.4 |                 Access Password |          password |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |   5 |        7.1.5 |               Sender Name or ID |            sender |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |   6 |        7.1.6 |           Sender Street Address |           address |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |   7 |        7.1.7 |                  Reserved Field |          reserved |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |   8 |        7.1.8 |         Sender Telephone Number |             phone |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |   9 |        7.1.9 |       Characteristics of Sender |              caps |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |  10 |       7.1.10 |                     Receiver ID |          receiver |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |  11 |       7.1.11 |                        Comments |          comments |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |  12 |       7.1.12 |                   Processing ID |     processing_id |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |  13 |       7.1.13 |                  Version Number |           version |
-        ' +-----+--------------+---------------------------------+-------------------+
-        ' |  14 |       7.1.14 |            Date/Time of Message |         timestamp |
-        ' +-----+--------------+---------------------------------+-------------------+
+
         ''' <summary>
         ''' Parse ASTM Header record when required details are passed,
         ''' Required details will be determined from the specific instruments documentation.
         ''' </summary>
-        ''' <param name="sender">Sender Name or ID.</param>
+        ''' <param name="senderNameOrId">Sender Name or ID.</param>
         ''' <param name="isTimeStampRequired">Boolean determines whether timestamp should be included in the ASTM header record.</param>
-        ''' <param name="astmVersion">Default: LIS2-A2.Optional parameter. Version Number for ASTM Specification.</param>
+        ''' <param name="versionNumber">Default: LIS2-A2.Optional parameter. Version Number for ASTM Specification.</param>
         ''' <param name="repeatDelimiter">Default: Backslash ASCII 92. Repeat Delimiter, included in delimiter definition. </param>
-        ''' <param name="messageId">This is a unique number or other ID that uniquely identifies the transmission for use in network systems.</param>
-        ''' <param name="password">This is a level security/access password as mutually agreed upon by the sender and receiver.</param>
-        ''' <param name="address">This text value shall contain the street address of the sender</param>
-        ''' <param name="reserved">This field is currently unused but reserved for future use.</param>
-        ''' <param name="phone">This field identifies a telephone number for voice communication with the sender</param>
-        ''' <param name="caps">This field contains any characteristics of the sender such as, parity, checksums, optional protocols, etc. necessary for establishing a communication link with the sender.</param>
-        ''' <param name="receiver">The name or other ID of the receiver. Its purpose is verification that the transmission is indeed for the receiver.</param>
+        ''' <param name="messageControlId">This is a unique number or other ID that uniquely identifies the transmission for use in network systems.</param>
+        ''' <param name="acccessPassword">This is a level security/access password as mutually agreed upon by the sender and receiver.</param>
+        ''' <param name="senderStreetAddress">This text value shall contain the street address of the sender</param>
+        ''' <param name="reservedField">This field is currently unused but reserved for future use.</param>
+        ''' <param name="senderTelephoneNumber">This field identifies a telephone number for voice communication with the sender</param>
+        ''' <param name="characteristicsOfSender">This field contains any characteristics of the sender such as, parity, checksums, optional protocols, etc. necessary for establishing a communication link with the sender.</param>
+        ''' <param name="receiverId">The name or other ID of the receiver. Its purpose is verification that the transmission is indeed for the receiver.</param>
         ''' <param name="comments">This text field shall contain any comments or special instructions relating to the subsequent records to be transmitted.</param>
         ''' <param name="processingId">Processing IDs: P, T, D, Q. Production, Training, Debugging and Quality Control respectively </param>
         ''' <returns>Header record with placeholders for control characters.</returns>
-        Function GenerateHeader(ByVal sender As String,
+        Function GenerateHeader(ByVal senderNameOrId As String,
         ByVal isTimeStampRequired As Boolean,
-        ByVal Optional astmVersion As AstmVersions = AstmVersions.LIS2_A2,
+        ByVal Optional versionNumber As AstmVersions = AstmVersions.Lis2A2,
         ByVal Optional repeatDelimiter As Integer = repeatDelimiter,
-        ByVal Optional messageId As String = Nothing,
-        ByVal Optional password As String = Nothing,
-        ByVal Optional address As String = Nothing,
-        ByVal Optional reserved As String = Nothing,
-        ByVal Optional phone As String = Nothing,
-        ByVal Optional caps As String = Nothing,
-        ByVal Optional receiver As String = Nothing,
+        ByVal Optional messageControlId As String = Nothing,
+        ByVal Optional acccessPassword As String = Nothing,
+        ByVal Optional senderStreetAddress As String = Nothing,
+        ByVal Optional reservedField As String = Nothing,
+        ByVal Optional senderTelephoneNumber As String = Nothing,
+        ByVal Optional characteristicsOfSender As String = Nothing,
+        ByVal Optional receiverId As String = Nothing,
         ByVal Optional comments As String = Nothing,
         ByVal Optional processingId As String = Nothing)
 
             'Usage Status in Order Record Header.
             'Generate Delimiter Definition.
-            Const type As String = "H"
-            Dim delimiterDef As String = ChrW(fieldDelimiter) & ChrW(repeatDelimiter) & ChrW(componentDelimiter) & ChrW(escapeCharacter)
+            Const recordTypeId As String = "H"
+            Dim delimiterDefinition As String = ChrW(fieldDelimiter) & ChrW(repeatDelimiter) & ChrW(componentDelimiter) & ChrW(escapeCharacter)
 
             'Setting the Default Protocol as LIS2-A2. No Need to read from disk(Settings file.) That makes the code slower.
-            Dim versionNumber As String = "LIS2-A2"
+            Dim astmVersion As String = "LIS2-A2"
             'If the Version is specified as E1394-97 then the following line gets executed.
-            If astmVersion = AstmVersions.E1394_97 Then versionNumber = My.Settings.E1394_97
+            If versionNumber = AstmVersions.E1394_97 Then astmVersion = My.Settings.E1394_97
 
             'Setting timestamp if required. Date and time of message format is fixed with “YYYYMMDDHHMMSS”
-            Dim timestamp As String = ""
-            If isTimeStampRequired = True Then timestamp = DateTime.Now().ToString("yyyyMMddHHmmss")
-            testingTimestamp = timestamp.ToString
+            Dim dateAndTimeOfMessage As String = ""
+            If isTimeStampRequired = True Then dateAndTimeOfMessage = DateTime.Now().ToString("yyyyMMddHHmmss")
+            testingTimestamp = dateAndTimeOfMessage.ToString
 
             Return String.Format("[STX][F#]{0}{1}{2}{3}{2}{4}{2}{5}{2}{6}{2}{7}{2}{8}{2}{9}{2}{10}{2}{11}{2}{12}{2}{13}{2}{14}[ETX][CHK1][CHK2][CR][LF]",
-                       type,
-                       delimiterDef,
+                       recordTypeId,
+                       delimiterDefinition,
                        ChrW(fieldDelimiter),
-                       messageId,
-                       password,
-                       sender,
-                       address,
-                       reserved,
-                       phone,
-                       caps,
-                       receiver,
+                       messageControlId,
+                       acccessPassword,
+                       senderNameOrId,
+                       senderStreetAddress,
+                       reservedField,
+                       senderTelephoneNumber,
+                       characteristicsOfSender,
+                       receiverId,
                        comments,
                        processingId,
-                       versionNumber,
-                       timestamp)
+                       astmVersion,
+                       dateAndTimeOfMessage)
         End Function
 
         ''' <summary>
@@ -155,32 +126,32 @@ Namespace Records
         ''' </summary>
         ''' <param name="headerRecord">ASTM Header Record to get the delimiter type as Enum DelimiterDef.</param>
         ''' <returns>0 = DefDefault, 1 = DefYen, 2 = DefOther</returns>
-        Function GetDelimiterDefType(ByVal headerRecord As String) As DelimiterDef
+        Function GetDelimiterDefinitionType(ByVal headerRecord As String) As DelimiterDefinition
             'Setting up method name for logging.
             Dim myName As String = MethodBase.GetCurrentMethod().Name
             log.Info(String.Format("Method: {0} Frame: {1}", myName, headerRecord))
 
             Dim splitFrame() As String = SplitTheHeader(headerRecord)
-            Dim delimiterDefType As String
+            Dim delimiterDefinitionType As String
             'Ensure that the header is valid.
             If DetermineFrameType(headerRecord) = FrameType.H Then
                 'Determine Delimiter
                 Select Case splitFrame(1)
                     Case "\^&"
-                        delimiterDefType = DelimiterDef.DefDefault
+                        delimiterDefinitionType = DelimiterDefinition.DefDefault
                     Case "¥^&"
-                        delimiterDefType = DelimiterDef.DefYen
+                        delimiterDefinitionType = DelimiterDefinition.DefYen
                     Case Else
-                        delimiterDefType = DelimiterDef.DefOther
+                        delimiterDefinitionType = DelimiterDefinition.DefOther
                         'TODO:Implement some way to do this. For now reply with [NAK].
                         log.Warn(String.Format("Method: {0}. Delimiter definition not recognized. Delimiter definition: |{1}", myName, splitFrame(1)))
                 End Select
             Else
                 log.Info(String.Format("Invalid record typed passed to Function {0}.", myName))
-                delimiterDefType = invalidFrameType
+                delimiterDefinitionType = invalidFrameType
             End If
 
-            Return delimiterDefType
+            Return delimiterDefinitionType
         End Function
 
         ''' <summary>
@@ -215,6 +186,7 @@ Namespace Records
             'Check whether the frame passed is a header.
             If DetermineFrameType(headerRecord) = FrameType.H Then
                 Dim splitFrame() As String = SplitTheHeader(headerRecord) 'The array SplitFrame() should have a max of 14 items (13 indexes)
+
                 'TODO: Pass the fields that component delimited and repeat delimited to their respective functions to get Individual Fields.
                 'TODO: Component delimited fields in header:
                 'TODO: Repeat delimited fields in Header:

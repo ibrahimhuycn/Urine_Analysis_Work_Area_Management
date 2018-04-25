@@ -56,11 +56,14 @@ Public Class NestedDelimiting
     End Function
 
     ''' <summary>
-    ''' Checks whether the field is delimited by looking for the presence of a repeat delimiter or component delimiter.
+    ''' Checks whether the field is delimited by looking for the presence of a repeat delimiter or component delimiter or both.
     ''' </summary>
     ''' <param name="fields">The field to be checked.</param>
-    ''' <returns>Returns an integer as an enum, NestedDelimitedTypes</returns>
+    ''' <returns>Returns an integer as an enum indicating type of delimiting. If not delimited, that is indicated.</returns>
     Public Shared Function IsNestedDelimited(ByVal fields As String) As NestedDelimitedTypes
+        'Setting up method name for logging.
+        Dim myName As String = MethodBase.GetCurrentMethod().Name
+        log.Info(String.Format("Method: {0} Frame: {1}", myName, fields))
 
         Select Case True
 
@@ -74,7 +77,7 @@ Public Class NestedDelimiting
             Case fields.Contains(ChrW(repeatDelimiter))   'Checking whether the field has a repeat delimiter.
                 Return NestedDelimitedTypes.repeatDelimited
 
-            Case Else
+            Case Else   'Fields that are not delimited falls through to else statement.
                 Return NestedDelimitedTypes.notDelimited
         End Select
 

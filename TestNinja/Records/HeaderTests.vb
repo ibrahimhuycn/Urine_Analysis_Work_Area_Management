@@ -5,6 +5,12 @@ Imports ASTM.ErrorCodes.Errors
 
 Namespace Records
 
+    Enum DelimiterDefinition
+        DefDefault
+        DefYen
+        DefOther
+    End Enum
+
     <TestClass()> Public Class HeaderTests
 
         <TestMethod()> Public Sub GenerateHeader_RepeatDelimiterBackslashNoTimeStampLIS2A2_ValidAstmHeader()
@@ -91,6 +97,36 @@ Namespace Records
             'ASSERT
             'MsgBox(ActualHeader & vbCrLf & ExpectedHeader)
             Assert.AreEqual(ActualHeader, ExpectedHeader)
+
+        End Sub
+
+        <TestMethod()> Public Sub GetDelimiterDefinitionType_HeaderRecordWithDefaultHeaderDefinition_ReturnEnumIntegerValueIndicatingDefinitionType()
+
+            'ARRANGE
+            Dim DelimiterDefinitionType As New ASTM.Records.Header
+            Dim headerRecord As String = "[STX][F#]H|\^&|||TestNinja||||||||E1394-97|[ETX][CHK1][CHK2][CR][LF]"
+            'ACT
+            Dim returnedHeaderDefinition As String = DelimiterDefinitionType.GetDelimiterDefinitionType(headerRecord)
+            Dim expectedDefinition As String = DelimiterDefinition.DefDefault
+
+            'ASSERT
+            'MsgBox(ActualHeader & vbCrLf & ExpectedHeader)
+            Assert.AreEqual(returnedHeaderDefinition, expectedDefinition)
+
+        End Sub
+
+        <TestMethod()> Public Sub GetDelimiterDefinitionType_HeaderRecordWithHeaderDefinitionYen_ReturnEnumIntegerValueIndicatingDefinitionType()
+
+            'ARRANGE
+            Dim DelimiterDefinitionType As New ASTM.Records.Header
+            Dim headerRecord As String = "[STX][F#]H|¥^&|||TestNinja||||||||E1394-97|[ETX][CHK1][CHK2][CR][LF]"
+            'ACT
+            Dim returnedHeaderDefinition As String = DelimiterDefinitionType.GetDelimiterDefinitionType(headerRecord)
+            Dim expectedDefinition As String = DelimiterDefinition.DefYen
+
+            'ASSERT
+            'MsgBox(ActualHeader & vbCrLf & ExpectedHeader)
+            Assert.AreEqual(returnedHeaderDefinition, expectedDefinition)
 
         End Sub
 
