@@ -8,4 +8,7 @@ I should have named this better.
 
 hehe.
 
-As you might have noticed, I do not have anyone woeking with me.So.., any help you can provide  welcome.
+As you might have noticed, I do not have anyone working with me. So.., any help you can provide most welcome.
+
+IBRAHIM HUSSAIN
+ibrahim.hucyn@live.com
