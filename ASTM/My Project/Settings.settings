@@ -5,8 +5,11 @@
     <Setting Name="LIS2_A2" Type="System.String" Scope="Application">
       <Value Profile="(Default)">LIS2-A2</Value>
     </Setting>
-    <Setting Name="E1394_97" Type="System.String" Scope="User">
+    <Setting Name="E1394_97" Type="System.String" Scope="Application">
       <Value Profile="(Default)">E1394-97</Value>
+    </Setting>
+    <Setting Name="IsRepeatDelimiterDefault" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

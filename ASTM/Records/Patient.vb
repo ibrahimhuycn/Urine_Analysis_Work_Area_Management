@@ -1,7 +1,9 @@
 ﻿Namespace Records
+
     Public Class Patient
-                Function GeneratePatient()
-            'Patient Record Example: 
+
+        Function GeneratePatient()
+            'Patient Record Example:
             ' +-----+--------------+---------------------------------+-------------------+
             ' |  #  | ASTM Field # | ASTM Name                       | VB  alias         |
             ' +=====+==============+=================================+===================+
@@ -60,25 +62,25 @@
             Const type As String = "P"
             Dim seq As Integer = Nothing                        'seq
             Dim practice_id As Integer = Nothing                'Not Used
-            Dim laboratory_id As Integer = Nothing              'max 16 characters long    
+            Dim laboratory_id As Integer = Nothing              'max 16 characters long
             Dim id As Integer = Nothing                         'Not Used
 
             'Names separated by caret (^)
             'LastName^MiddleName^FirstName^
             Dim name As String = Nothing
             Dim maiden_name As String = Nothing                 'Not Used
-            Dim birthdate As Date = Nothing                     'B'DAY in AD    
+            Dim birthdate As Date = Nothing                     'B'DAY in AD
             Dim sex As String = Nothing                         'Gender
             Dim race As String = Nothing                        'Not Used
             Dim address As String = Nothing                     'Not Used
             Dim reserved As String = Nothing                    'Not Used
             Dim phone As Integer = Nothing                      'Not Used
             Dim physician_id As Integer = Nothing               'Not Used
-            Dim special_1 As String = Nothing                   'Blood Group & Rh 
+            Dim special_1 As String = Nothing                   'Blood Group & Rh
             Dim special_2 As String = Nothing                   'Not Used
             Dim height As Integer = Nothing                     'Not Used
             Dim weight As Integer = Nothing                     'Not Used
-            Dim diagnosis As String = Nothing                   'Disease Code       
+            Dim diagnosis As String = Nothing                   'Disease Code
             Dim medication As String = Nothing                  'Not Used
             Dim diet As String = Nothing                        'Not Used
             Dim practice_field_1 As String = Nothing            'Not Used
@@ -89,6 +91,7 @@
 
             Return 0
         End Function
-    End Class
-End Namespace
 
+    End Class
+
+End Namespace
